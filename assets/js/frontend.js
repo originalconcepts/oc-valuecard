@@ -227,6 +227,7 @@
 
 	$( document ).on( 'click', '#ocvc-join-decline', function ( e ) {
 		e.preventDefault();
+		$( '#ocvc-join-club' ).prop( 'checked', false ).trigger( 'change' );
 		closeModal();
 	} );
 
