@@ -1,0 +1,593 @@
+/* OC ValueCard — checkout front-end styles. Neutral by design so it inherits the theme. */
+
+.ocvc-box-wrap {
+	display: block;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.ocvc-box {
+	margin: 1em 0;
+	padding: 1em 1.25em;
+	border: 1px solid rgba( 0, 0, 0, 0.08 );
+	border-radius: 10px;
+	background: #fff;
+	box-shadow: 0 1px 4px rgba( 0, 0, 0, 0.05 );
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.ocvc-box p {
+	margin: 0.35em 0;
+}
+
+.ocvc-hello {
+	font-weight: 600;
+}
+
+.ocvc-redeem-row {
+	display: flex;
+	gap: 0.5em;
+	align-items: center;
+	margin-top: 0.5em;
+}
+
+.ocvc-amount {
+	max-width: 8em;
+	padding: 0.4em 0.6em;
+}
+
+.ocvc-hint {
+	font-size: 0.85em;
+	opacity: 0.7;
+}
+
+/* Prospect row: join on one side, "I have a membership" on the other. */
+.ocvc-prospect {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75em 1em;
+}
+
+.ocvc-join-label {
+	display: flex;
+	gap: 0.5em;
+	align-items: center;
+	cursor: pointer;
+	margin: 0;
+}
+
+.ocvc-join-text {
+	line-height: 1.4;
+}
+
+.ocvc-have-club {
+	white-space: nowrap;
+	font-weight: 600;
+}
+
+/* Join line with modern toggle (toggle sits on the start side, before the text). */
+.ocvc-join-line {
+	display: flex;
+	align-items: center;
+	gap: 0.6em;
+}
+
+.ocvc-toggle {
+	position: relative;
+	display: inline-flex;
+	flex: 0 0 auto;
+}
+
+.ocvc-toggle-input {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+	margin: 0;
+}
+
+.ocvc-toggle-track {
+	display: inline-block;
+	width: 2.7em;
+	height: 1.5em;
+	border-radius: 999px;
+	background: #cfd8d3;
+	cursor: pointer;
+	position: relative;
+	transition: background 0.15s ease;
+}
+
+.ocvc-toggle-thumb {
+	position: absolute;
+	top: 0.15em;
+	inset-inline-start: 0.15em;
+	width: 1.2em;
+	height: 1.2em;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 1px 2px rgba( 0, 0, 0, 0.25 );
+	transition: inset-inline-start 0.15s ease;
+}
+
+.ocvc-toggle-input:checked + .ocvc-toggle-track {
+	background: var(--ocvc-primary,#1aa251);
+}
+
+.ocvc-toggle-input:checked + .ocvc-toggle-track .ocvc-toggle-thumb {
+	inset-inline-start: 1.35em;
+}
+
+.ocvc-toggle-input:focus-visible + .ocvc-toggle-track {
+	box-shadow: 0 0 0 2px rgba( 0, 0, 0, 0.18 );
+}
+
+/* Subtle secondary button (e.g. "Maybe later"). */
+.ocvc-btn-muted {
+	background: #eef1f0;
+	color: #333;
+	border: 0;
+	border-radius: 999px;
+	padding: 0.5em 1.2em;
+	font: inherit;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.15s ease;
+}
+
+.ocvc-btn-muted:hover {
+	background: #e2e6e4;
+}
+
+/* Join popup action buttons. */
+.ocvc-join-actions {
+	display: flex;
+	gap: 0.6em;
+	justify-content: center;
+	flex-wrap: wrap;
+	margin-top: 1.25em;
+}
+
+.ocvc-link {
+	background: none;
+	border: none;
+	padding: 0;
+	margin: 0;
+	color: inherit;
+	text-decoration: underline;
+	cursor: pointer;
+	font: inherit;
+}
+
+.ocvc-link:hover {
+	opacity: 0.75;
+}
+
+.ocvc-msg {
+	margin-top: 0.5em;
+	font-size: 0.9em;
+	min-height: 1em;
+}
+
+.ocvc-error {
+	color: #b00020;
+}
+
+/* ---------------- Member (connected) view ---------------- */
+.ocvc-member-head {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.4em 0.6em;
+	margin-bottom: 0.75em;
+}
+
+.ocvc-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 50%;
+	background: var(--ocvc-primary,#1aa251);
+	color: #fff;
+	font-size: 0.85em;
+	font-weight: 700;
+	flex: 0 0 auto;
+}
+
+.ocvc-connected {
+	font-weight: 600;
+	color: var(--ocvc-primary,#1aa251);
+}
+
+.ocvc-member-name {
+	background: none;
+	border: none;
+	padding: 0;
+	font: inherit;
+	font-weight: 700;
+	cursor: pointer;
+	text-decoration: underline;
+	color: inherit;
+}
+
+.ocvc-logout {
+	margin-inline-start: auto;
+	font-size: 0.85em;
+	opacity: 0.7;
+}
+
+.ocvc-points-area {
+	margin: 0.5em 0 0.25em;
+}
+
+.ocvc-points-row {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.6em 1em;
+	justify-content: space-between;
+	padding: 0.75em 1em;
+	background: linear-gradient( 135deg, var(--ocvc-primary-bg,rgba(26,162,81,.10)), var(--ocvc-primary-bg2,rgba(26,162,81,.02)) );
+	border: 1px solid var(--ocvc-primary-border,rgba(26,162,81,.35));
+	border-radius: 10px;
+}
+
+.ocvc-points-count {
+	display: flex;
+	align-items: baseline;
+	gap: 0.3em;
+}
+
+.ocvc-points-action {
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+}
+
+.ocvc-redeem-field {
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+}
+
+.ocvc-redeem-field[hidden] {
+	display: none;
+}
+
+.ocvc-redeem-field .ocvc-amount {
+	width: 4.5em;
+	margin: 0;
+	padding: 0.45em 0.5em;
+	border: 1px solid #cfd8d3;
+	border-radius: 8px;
+	text-align: center;
+	font-weight: 600;
+	background: #fff;
+	-moz-appearance: textfield;
+	appearance: textfield;
+}
+
+.ocvc-redeem-field .ocvc-amount:focus {
+	outline: none;
+	border-color: var(--ocvc-primary,#1aa251);
+}
+
+.ocvc-redeem-field .ocvc-amount::-webkit-outer-spin-button,
+.ocvc-redeem-field .ocvc-amount::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+/* Redeem buttons: elegant pill, prominent accent (not the theme's grey). */
+.ocvc-redeem-btn {
+	background: var(--ocvc-primary,#1aa251);
+	color: #fff;
+	border: 0;
+	border-radius: 999px;
+	padding: 0.5em 1.2em;
+	font: inherit;
+	font-weight: 700;
+	line-height: 1.2;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: background 0.15s ease, transform 0.05s ease;
+}
+
+.ocvc-redeem-btn:hover {
+	background: var(--ocvc-primary-dark,#158443);
+}
+
+.ocvc-redeem-btn:active {
+	transform: translateY( 1px );
+}
+
+/* "Redeemed X points · Remove", inline inside the points box. */
+.ocvc-applied-inline {
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+	flex-wrap: wrap;
+	color: var(--ocvc-primary,#1aa251);
+	font-weight: 600;
+}
+
+.ocvc-applied-inline .ocvc-applied-value {
+	opacity: 0.85;
+	font-weight: 500;
+}
+
+.ocvc-applied-inline .ocvc-link {
+	font-weight: 400;
+	opacity: 0.8;
+}
+
+.ocvc-balance-amount {
+	font-size: 1.9em;
+	font-weight: 800;
+	color: var(--ocvc-primary,#1aa251);
+	line-height: 1;
+}
+
+.ocvc-balance-word {
+	font-size: 1.1em;
+	font-weight: 700;
+	color: var(--ocvc-primary,#1aa251);
+}
+
+.ocvc-balance-sub {
+	opacity: 0.7;
+}
+
+.ocvc-point-note {
+	text-align: center;
+	font-size: 0.82em;
+	opacity: 0.65;
+	margin: 0 0 0.5em;
+}
+
+.ocvc-earn {
+	text-align: center;
+	font-size: 0.9em;
+	margin: 0 0 0.75em;
+	padding: 0.4em 0.6em;
+	background: var(--ocvc-primary-soft,rgba(26,162,81,.08));
+	border-radius: 8px;
+}
+
+/* Applied benefit names under the "Club benefit" total (non-bold). */
+.ocvc-benefit-names {
+	display: block;
+	font-weight: 400;
+	font-size: 0.82em;
+	opacity: 0.75;
+	margin-top: 0.15em;
+}
+
+.ocvc-benefits {
+	font-size: 0.9em;
+	text-align: center;
+	margin: 0 0 0.75em;
+	opacity: 0.85;
+}
+
+.ocvc-otp .ocvc-btn-primary {
+	width: 100%;
+	font-weight: 700;
+	font-size: 1.05em;
+	background: var(--ocvc-primary,#1aa251);
+	color: #fff;
+	border: 0;
+	border-radius: 10px;
+	padding: 0.9em 1em;
+	min-height: 3em;
+	line-height: 1.2;
+	cursor: pointer;
+	transition: background 0.15s ease;
+}
+
+.ocvc-otp .ocvc-btn-primary:hover {
+	background: var(--ocvc-primary-dark,#158443);
+}
+
+.ocvc-applied-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5em;
+	padding: 0.6em 0.8em;
+	background: var(--ocvc-primary-soft,rgba(26,162,81,.08));
+	border-radius: 8px;
+}
+
+.ocvc-applied-text {
+	color: var(--ocvc-primary,#1aa251);
+	font-weight: 600;
+}
+
+.ocvc-advanced {
+	margin-top: 0.6em;
+}
+
+.ocvc-advanced > summary {
+	cursor: pointer;
+	font-size: 0.88em;
+	opacity: 0.75;
+	margin-bottom: 0.5em;
+}
+
+.ocvc-details-list {
+	list-style: none;
+	margin: 0 0 0.5em;
+	padding: 0;
+	text-align: start;
+}
+
+.ocvc-details-list li {
+	display: flex;
+	justify-content: space-between;
+	gap: 1em;
+	padding: 0.45em 0;
+	border-bottom: 1px solid rgba( 0, 0, 0, 0.07 );
+}
+
+.ocvc-details-list li span {
+	opacity: 0.7;
+}
+
+.ocvc-benefits-list {
+	text-align: start;
+	margin: 0.25em 0 0;
+	padding-inline-start: 1.2em;
+}
+
+.ocvc-benefits-list li {
+	margin: 0.2em 0;
+}
+
+/* ---------------- Modals ---------------- */
+.ocvc-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 999999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba( 0, 0, 0, 0.55 );
+	padding: 1em;
+}
+
+.ocvc-modal[hidden] {
+	display: none;
+}
+
+.ocvc-modal-inner {
+	position: relative;
+	width: min( 92vw, 420px );
+	max-height: 88vh;
+	overflow: auto;
+	background: #fff;
+	color: #1a1a1a;
+	padding: 2em 1.75em 1.75em;
+	border-radius: 14px;
+	box-shadow: 0 18px 50px rgba( 0, 0, 0, 0.28 );
+	text-align: center;
+}
+
+.ocvc-modal-close {
+	position: absolute;
+	top: 0.5em;
+	inset-inline-end: 0.7em;
+	background: none;
+	border: none;
+	font-size: 1.7em;
+	line-height: 1;
+	cursor: pointer;
+	color: #999;
+}
+
+.ocvc-modal-close:hover {
+	color: #333;
+}
+
+/* OTP popup */
+.ocvc-otp-title {
+	margin: 0 0 0.5em;
+	font-size: 1.3em;
+}
+
+.ocvc-otp-intro,
+.ocvc-otp-hint {
+	color: #555;
+	line-height: 1.5;
+	margin: 0 0 1.1em;
+	font-size: 0.95em;
+}
+
+.ocvc-input {
+	width: 100%;
+	padding: 0.7em 0.8em;
+	margin-bottom: 0.9em;
+	box-sizing: border-box;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	font-size: 1.05em;
+	text-align: center;
+}
+
+.ocvc-input:focus {
+	outline: none;
+	border-color: #444;
+}
+
+.ocvc-btn-primary {
+	width: 100%;
+}
+
+.ocvc-otp-sent {
+	margin: 0.25em 0 0.25em;
+	color: #333;
+}
+
+.ocvc-masked {
+	font-weight: 700;
+	letter-spacing: 0.12em;
+}
+
+.ocvc-otp-change {
+	display: inline-block;
+	margin-bottom: 1.25em;
+	font-size: 0.9em;
+}
+
+.ocvc-otp-boxes {
+	display: flex;
+	gap: 0.5em;
+	justify-content: center;
+	margin: 0.25em 0 0.5em;
+}
+
+.ocvc-otp-digit {
+	width: 2.6em;
+	height: 3.1em;
+	text-align: center;
+	font-size: 1.4em;
+	font-weight: 600;
+	border: 1px solid #ccc;
+	border-radius: 10px;
+	box-sizing: border-box;
+	-moz-appearance: textfield;
+}
+
+.ocvc-otp-digit::-webkit-outer-spin-button,
+.ocvc-otp-digit::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.ocvc-otp-digit:focus {
+	outline: none;
+	border-color: #1a1a1a;
+	box-shadow: 0 0 0 2px rgba( 0, 0, 0, 0.12 );
+}
+
+.ocvc-otp .ocvc-msg {
+	text-align: center;
+}
+
+/* Join popup content */
+.ocvc-join-content {
+	text-align: start;
+	line-height: 1.6;
+}
+
+@media ( max-width: 480px ) {
+	.ocvc-otp-digit {
+		width: 2.2em;
+		height: 2.8em;
+		font-size: 1.2em;
+	}
+}

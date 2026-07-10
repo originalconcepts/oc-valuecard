@@ -1,0 +1,271 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: OC ValueCard 0.1.0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: oc-valuecard\n"
+
+msgid "\"I have a membership\" link text"
+msgstr ""
+
+msgid "1 point = 1 %s"
+msgstr ""
+
+msgid "A code has been sent to your phone."
+msgstr ""
+
+msgid "A code was sent by SMS to the number"
+msgstr ""
+
+msgid "Appearance"
+msgstr ""
+
+msgid "Applying…"
+msgstr ""
+
+msgid "Balance"
+msgstr ""
+
+msgid "Behaviour"
+msgstr ""
+
+msgid "Birthday"
+msgstr ""
+
+msgid "Card group"
+msgstr ""
+
+msgid "Cashier's Password"
+msgstr ""
+
+msgid "Change number"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Club benefit"
+msgstr ""
+
+msgid "Commit points on order status"
+msgstr ""
+
+msgid "Completing this order will earn you %s more points"
+msgstr ""
+
+msgid "Connected to the club"
+msgstr ""
+
+msgid "Could not authenticate with ValueCard."
+msgstr ""
+
+msgid "Could not connect to ValueCard."
+msgstr ""
+
+msgid "Could not send code."
+msgstr ""
+
+msgid "Disconnect"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Enable debug logging (redacted, protected folder)"
+msgstr ""
+
+msgid "Enter the 6-digit code you received"
+msgstr ""
+
+msgid "Enter the phone number linked to your membership and we will send you a verification code by SMS."
+msgstr ""
+
+msgid "Enter verification code"
+msgstr ""
+
+msgid "Guest Redemption (OTP)"
+msgstr ""
+
+msgid "I have a membership"
+msgstr ""
+
+msgid "Incorrect code."
+msgstr ""
+
+msgid "Join checkbox label"
+msgstr ""
+
+msgid "Join for free"
+msgstr ""
+
+msgid "Join our [loyalty club]"
+msgstr ""
+
+msgid "Join popup content"
+msgstr ""
+
+msgid "Join the Club"
+msgstr ""
+
+msgid "Join the club"
+msgstr ""
+
+msgid "Loyalty program is not configured."
+msgstr ""
+
+msgid "Match the loyalty area to your brand. Affects buttons, highlights and the points box."
+msgstr ""
+
+msgid "Maybe later"
+msgstr ""
+
+msgid "Member sign in"
+msgstr ""
+
+msgid "Membership status"
+msgstr ""
+
+msgid "Missing phone or code."
+msgstr ""
+
+msgid "No member is identified."
+msgstr ""
+
+msgid "No redemption is available."
+msgstr ""
+
+msgid "OC ValueCard"
+msgstr ""
+
+msgid "OC ValueCard requires WooCommerce to be installed and active."
+msgstr ""
+
+msgid "Offer \"Join the club\" to non-members"
+msgstr ""
+
+msgid "POS ID"
+msgstr ""
+
+msgid "POS Password"
+msgstr ""
+
+msgid "Phone"
+msgstr ""
+
+msgid "Phone number"
+msgstr ""
+
+msgid "Please enter a valid phone number."
+msgstr ""
+
+msgid "Please wait a few seconds before requesting another code."
+msgstr ""
+
+msgid "Points redemption"
+msgstr ""
+
+msgid "Primary color"
+msgstr ""
+
+msgid "Pull points on the checkout page"
+msgstr ""
+
+msgid "Pull points when a member logs in"
+msgstr ""
+
+msgid "Redeem button label"
+msgstr ""
+
+msgid "Redeem now"
+msgstr ""
+
+msgid "Redeem points"
+msgstr ""
+
+msgid "Redeemed %s points"
+msgstr ""
+
+msgid "Remove"
+msgstr ""
+
+msgid "Send code"
+msgstr ""
+
+msgid "Send-code button label"
+msgstr ""
+
+msgid "Sending…"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Sign-in popup explanation"
+msgstr ""
+
+msgid "Sign-in popup title"
+msgstr ""
+
+msgid "Something went wrong. Please try again."
+msgstr ""
+
+msgid "Text inside [square brackets] becomes a link that opens the info popup below."
+msgstr ""
+
+msgid "Unexpected ValueCard response."
+msgstr ""
+
+msgid "VC Token"
+msgstr ""
+
+msgid "ValueCard Credentials"
+msgstr ""
+
+msgid "ValueCard commit failed: "
+msgstr ""
+
+msgid "ValueCard enrolment failed: "
+msgstr ""
+
+msgid "ValueCard void failed."
+msgstr ""
+
+msgid "ValueCard: member enrolled. "
+msgstr ""
+
+msgid "ValueCard: points committed (transaction %s). "
+msgstr ""
+
+msgid "ValueCard: transaction voided."
+msgstr ""
+
+msgid "Verification code digit"
+msgstr ""
+
+msgid "Verifying…"
+msgstr ""
+
+msgid "View my details"
+msgstr ""
+
+msgid "Void transaction on cancel/refund"
+msgstr ""
+
+msgid "When an order reaches this status, usage is reported to ValueCard (commit). Recommended: Processing."
+msgstr ""
+
+msgid "Your benefits"
+msgstr ""
+
+msgid "for use"
+msgstr ""
+
+msgid "point"
+msgstr ""
+
+msgid "points"
+msgstr ""
+

@@ -1,0 +1,271 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: OC ValueCard 0.1.0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: he_IL\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: oc-valuecard\n"
+
+msgid "\"I have a membership\" link text"
+msgstr "טקסט קישור \"יש לי מועדון\""
+
+msgid "1 point = 1 %s"
+msgstr "1 נקודה = 1 %s"
+
+msgid "A code has been sent to your phone."
+msgstr "קוד נשלח לטלפון שלך."
+
+msgid "A code was sent by SMS to the number"
+msgstr "קוד נשלח ב-SMS למספר"
+
+msgid "Appearance"
+msgstr "מראה"
+
+msgid "Applying…"
+msgstr "מחיל…"
+
+msgid "Balance"
+msgstr "יתרה"
+
+msgid "Behaviour"
+msgstr "התנהגות"
+
+msgid "Birthday"
+msgstr "יום הולדת"
+
+msgid "Card group"
+msgstr "קבוצת כרטיס"
+
+msgid "Cashier's Password"
+msgstr "סיסמת קופאי"
+
+msgid "Change number"
+msgstr "החלפת מספר"
+
+msgid "Close"
+msgstr "סגירה"
+
+msgid "Club benefit"
+msgstr "הטבת מועדון"
+
+msgid "Commit points on order status"
+msgstr "סגירת נקודות בסטטוס הזמנה"
+
+msgid "Completing this order will earn you %s more points"
+msgstr "ביצוע ההזמנה יזכה אותך ב-%s נקודות נוספות"
+
+msgid "Connected to the club"
+msgstr "מחובר/ת למועדון"
+
+msgid "Could not authenticate with ValueCard."
+msgstr "האימות מול ValueCard נכשל."
+
+msgid "Could not connect to ValueCard."
+msgstr "לא ניתן להתחבר ל-ValueCard."
+
+msgid "Could not send code."
+msgstr "לא ניתן לשלוח קוד."
+
+msgid "Disconnect"
+msgstr "התנתקות"
+
+msgid "Email"
+msgstr "אימייל"
+
+msgid "Enable debug logging (redacted, protected folder)"
+msgstr "הפעל תיעוד ניפוי (מצונזר, תיקייה מוגנת)"
+
+msgid "Enter the 6-digit code you received"
+msgstr "הזן את הקוד בן 6 הספרות שקיבלת"
+
+msgid "Enter the phone number linked to your membership and we will send you a verification code by SMS."
+msgstr "הזן את מספר הטלפון המשויך לחברות שלך ונשלח לך קוד אימות ב-SMS."
+
+msgid "Enter verification code"
+msgstr "הזן קוד אימות"
+
+msgid "Guest Redemption (OTP)"
+msgstr "מימוש לאורח (OTP)"
+
+msgid "I have a membership"
+msgstr "יש לי מועדון"
+
+msgid "Incorrect code."
+msgstr "קוד שגוי."
+
+msgid "Join checkbox label"
+msgstr "תווית תיבת ההצטרפות"
+
+msgid "Join for free"
+msgstr "הצטרפ/י בחינם"
+
+msgid "Join our [loyalty club]"
+msgstr "הצטרפו ל[מועדון הלקוחות שלנו]"
+
+msgid "Join popup content"
+msgstr "תוכן חלון ההצטרפות"
+
+msgid "Join the Club"
+msgstr "הצטרפות למועדון"
+
+msgid "Join the club"
+msgstr "הצטרפות למועדון"
+
+msgid "Loyalty program is not configured."
+msgstr "תוכנית המועדון אינה מוגדרת."
+
+msgid "Match the loyalty area to your brand. Affects buttons, highlights and the points box."
+msgstr "התאם את אזור המועדון למיתוג שלך. משפיע על כפתורים, הדגשות ותיבת הנקודות."
+
+msgid "Maybe later"
+msgstr "בפעם אחרת"
+
+msgid "Member sign in"
+msgstr "כניסת חבר מועדון"
+
+msgid "Membership status"
+msgstr "סטטוס חברות"
+
+msgid "Missing phone or code."
+msgstr "חסר טלפון או קוד."
+
+msgid "No member is identified."
+msgstr "לא זוהה חבר מועדון."
+
+msgid "No redemption is available."
+msgstr "אין מימוש זמין."
+
+msgid "OC ValueCard"
+msgstr "OC ValueCard"
+
+msgid "OC ValueCard requires WooCommerce to be installed and active."
+msgstr "התוסף OC ValueCard דורש ש-WooCommerce יהיה מותקן ופעיל."
+
+msgid "Offer \"Join the club\" to non-members"
+msgstr "הצע \"הצטרפות למועדון\" ללקוחות שאינם חברים"
+
+msgid "POS ID"
+msgstr "מזהה POS"
+
+msgid "POS Password"
+msgstr "סיסמת POS"
+
+msgid "Phone"
+msgstr "טלפון"
+
+msgid "Phone number"
+msgstr "מספר טלפון"
+
+msgid "Please enter a valid phone number."
+msgstr "אנא הזן מספר טלפון תקין."
+
+msgid "Please wait a few seconds before requesting another code."
+msgstr "אנא המתן כמה שניות לפני בקשת קוד נוסף."
+
+msgid "Points redemption"
+msgstr "מימוש נקודות"
+
+msgid "Primary color"
+msgstr "צבע ראשי"
+
+msgid "Pull points on the checkout page"
+msgstr "משיכת נקודות בעמוד הקופה"
+
+msgid "Pull points when a member logs in"
+msgstr "משיכת נקודות בהתחברות חבר מועדון"
+
+msgid "Redeem button label"
+msgstr "תווית כפתור המימוש"
+
+msgid "Redeem now"
+msgstr "בצע מימוש"
+
+msgid "Redeem points"
+msgstr "מימוש נקודות"
+
+msgid "Redeemed %s points"
+msgstr "נוצלו %s נקודות"
+
+msgid "Remove"
+msgstr "הסר"
+
+msgid "Send code"
+msgstr "שליחת קוד"
+
+msgid "Send-code button label"
+msgstr "תווית כפתור שליחת הקוד"
+
+msgid "Sending…"
+msgstr "שולח…"
+
+msgid "Settings"
+msgstr "הגדרות"
+
+msgid "Sign-in popup explanation"
+msgstr "הסבר בחלון הכניסה"
+
+msgid "Sign-in popup title"
+msgstr "כותרת חלון הכניסה"
+
+msgid "Something went wrong. Please try again."
+msgstr "משהו השתבש. אנא נסה שוב."
+
+msgid "Text inside [square brackets] becomes a link that opens the info popup below."
+msgstr "טקסט בתוך [סוגריים מרובעים] הופך לקישור שפותח את חלון המידע שמטה."
+
+msgid "Unexpected ValueCard response."
+msgstr "תגובה בלתי צפויה מ-ValueCard."
+
+msgid "VC Token"
+msgstr "טוקן VC"
+
+msgid "ValueCard Credentials"
+msgstr "פרטי התחברות ל-ValueCard"
+
+msgid "ValueCard commit failed: "
+msgstr "סגירת ValueCard נכשלה: "
+
+msgid "ValueCard enrolment failed: "
+msgstr "ההצטרפות ל-ValueCard נכשלה: "
+
+msgid "ValueCard void failed."
+msgstr "ביטול העסקה ב-ValueCard נכשל."
+
+msgid "ValueCard: member enrolled. "
+msgstr "ValueCard: החבר צורף למועדון. "
+
+msgid "ValueCard: points committed (transaction %s). "
+msgstr "ValueCard: הנקודות נסגרו (עסקה %s). "
+
+msgid "ValueCard: transaction voided."
+msgstr "ValueCard: העסקה בוטלה."
+
+msgid "Verification code digit"
+msgstr "ספרת קוד אימות"
+
+msgid "Verifying…"
+msgstr "מאמת…"
+
+msgid "View my details"
+msgstr "צפייה בפרטים שלי"
+
+msgid "Void transaction on cancel/refund"
+msgstr "ביטול עסקה בביטול/החזר הזמנה"
+
+msgid "When an order reaches this status, usage is reported to ValueCard (commit). Recommended: Processing."
+msgstr "כאשר הזמנה מגיעה לסטטוס זה, הניצול מדווח ל-ValueCard (סגירה). מומלץ: בטיפול."
+
+msgid "Your benefits"
+msgstr "ההטבות שלך"
+
+msgid "for use"
+msgstr "לשימוש"
+
+msgid "point"
+msgstr "נקודה"
+
+msgid "points"
+msgstr "נקודות"
+
