@@ -113,7 +113,8 @@
 }
 
 .ocvc-toggle-input:checked + .ocvc-toggle-track {
-	background: var(--ocvc-primary,#1aa251);
+	/* Always green ("on" indicator), independent of the brand primary colour. */
+	background: #34c759;
 }
 
 .ocvc-toggle-input:checked + .ocvc-toggle-track .ocvc-toggle-thumb {
