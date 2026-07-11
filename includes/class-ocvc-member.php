@@ -77,7 +77,7 @@ class OCVC_Member {
 	 * @return void
 	 */
 	public static function clear() {
-		foreach ( array( 'phone', 'verified', 'member_info', 'points_to_consume', 'transaction_id', 'discount', 'redeemed_points', 'earn', 'benefit_names', 'qsum', 'qpoints' ) as $key ) {
+		foreach ( array( 'phone', 'verified', 'member_info', 'member_info_ts', 'points_to_consume', 'transaction_id', 'discount', 'redeemed_points', 'earn', 'benefit_names', 'qsum', 'qpoints' ) as $key ) {
 			self::set( $key, null );
 		}
 	}
@@ -136,8 +136,14 @@ class OCVC_Member {
 			return null;
 		}
 
+		// Use the cached balance only while it is fresh — the balance changes
+		// server-side (a redemption commits when the order reaches its reserve status,
+		// or the member shops in-store), so a permanently-cached balance would show a
+		// stale figure at the next checkout. Re-pull after a short freshness window;
+		// the cache still spares an API call on every checkout AJAX round-trip.
 		$cached = self::get( 'member_info' );
-		if ( ! $force && is_array( $cached ) && isset( $cached['card'] ) && $cached['card'] === $card ) {
+		$age    = time() - (int) self::get( 'member_info_ts', 0 );
+		if ( ! $force && $age >= 0 && $age < 60 && is_array( $cached ) && isset( $cached['card'] ) && $cached['card'] === $card ) {
 			return (object) $cached;
 		}
 
@@ -168,6 +174,7 @@ class OCVC_Member {
 
 		self::set( 'phone', $card );
 		self::set( 'member_info', $data );
+		self::set( 'member_info_ts', time() );
 
 		return (object) $data;
 	}
@@ -204,7 +211,11 @@ class OCVC_Member {
 			if ( is_array( $decoded ) ) {
 				foreach ( $decoded as $b ) {
 					if ( ! empty( $b['Title'] ) ) {
-						$out[] = trim( $b['Title'] );
+						$title = trim( $b['Title'] );
+						if ( ! empty( $b['Description'] ) ) {
+							$title .= ' — ' . trim( $b['Description'] );
+						}
+						$out[] = $title;
 					}
 				}
 			}

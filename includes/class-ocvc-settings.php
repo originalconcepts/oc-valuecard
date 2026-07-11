@@ -74,12 +74,26 @@ class OCVC_Settings {
 			),
 
 			// --- Behaviour ---
-			'commit_status'     => array(
+			'reserve_statuses'  => array(
 				'section' => 'behaviour',
-				'label'   => __( 'Commit points on order status', 'oc-valuecard' ),
+				'label'   => __( 'Reserve / commit points on status', 'oc-valuecard' ),
+				'type'    => 'order_status_multi',
+				'default' => array( 'wc-on-hold', 'wc-processing' ),
+				'desc'    => __( 'When an order first reaches ANY ticked status, points are committed to ValueCard (locking redemption so they cannot be spent twice). Tick the statuses your orders land in — e.g. credit-card orders start On hold, cash orders start Processing.', 'oc-valuecard' ),
+			),
+			'settle_status'     => array(
+				'section' => 'behaviour',
+				'label'   => __( 'Settle & lock points on status', 'oc-valuecard' ),
 				'type'    => 'order_status',
-				'default' => 'wc-processing',
-				'desc'    => __( 'When an order reaches this status, usage is reported to ValueCard (commit). Recommended: Processing.', 'oc-valuecard' ),
+				'default' => 'wc-completed',
+				'desc'    => __( 'Final status: the redemption/accrual is re-synced to the final order and then permanently locked. Recommended: Completed.', 'oc-valuecard' ),
+			),
+			'resync_on_edit'    => array(
+				'section' => 'behaviour',
+				'label'   => __( 'Re-sync ValueCard when an order is edited', 'oc-valuecard' ),
+				'type'    => 'checkbox',
+				'default' => 1,
+				'desc'    => __( 'After points are reserved, if staff edit the order (weight, quantity, items) the commit is updated to match (void + re-quote + re-commit). Turn off to only flag edits for manual review.', 'oc-valuecard' ),
 			),
 			'pull_on_login'     => array(
 				'section' => 'behaviour',
@@ -287,6 +301,17 @@ class OCVC_Settings {
 				continue;
 			}
 
+			// Multi-checkbox statuses: unchecked boxes are not posted, so an absent key
+			// means "all unticked" and must clear the value (like a checkbox), not
+			// preserve the stale one. Keep only real, current order statuses.
+			if ( 'order_status_multi' === $field['type'] ) {
+				$vals          = ( isset( $input[ $key ] ) && is_array( $input[ $key ] ) ) ? $input[ $key ] : array();
+				$vals          = array_map( 'sanitize_text_field', $vals );
+				$valid         = function_exists( 'wc_get_order_statuses' ) ? array_keys( wc_get_order_statuses() ) : array();
+				$clean[ $key ] = array_values( $valid ? array_intersect( $vals, $valid ) : array_filter( $vals ) );
+				continue;
+			}
+
 			// Preserve the stored value for any field this form did not submit.
 			if ( ! array_key_exists( $key, $input ) ) {
 				continue;
@@ -388,6 +413,19 @@ class OCVC_Settings {
 					echo '<option value="' . esc_attr( $status_key ) . '" ' . selected( $value, $status_key, false ) . '>' . esc_html( $status_label ) . '</option>';
 				}
 				echo '</select>';
+				break;
+
+			case 'order_status_multi':
+				$statuses = function_exists( 'wc_get_order_statuses' ) ? wc_get_order_statuses() : array();
+				$selected = is_array( $value ) ? $value : ( $value ? array( $value ) : array() );
+				echo '<fieldset>';
+				foreach ( $statuses as $status_key => $status_label ) {
+					$cid = $id . '_' . sanitize_html_class( $status_key );
+					echo '<label for="' . esc_attr( $cid ) . '" style="display:inline-block;min-width:190px;margin:2px 0;">'
+						. '<input type="checkbox" id="' . esc_attr( $cid ) . '" name="' . esc_attr( $name ) . '[]" value="' . esc_attr( $status_key ) . '" ' . checked( in_array( $status_key, $selected, true ), true, false ) . ' /> '
+						. esc_html( $status_label ) . '</label>';
+				}
+				echo '</fieldset>';
 				break;
 
 			case 'wysiwyg':

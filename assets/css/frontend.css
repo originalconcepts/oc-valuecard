@@ -113,8 +113,8 @@
 }
 
 .ocvc-toggle-input:checked + .ocvc-toggle-track {
-	/* Always green ("on" indicator), independent of the brand primary colour. */
-	background: #34c759;
+	/* Exact green of the "save card for next purchase" (Cardcom) toggle, independent of the brand primary colour. */
+	background: #1aa251;
 }
 
 .ocvc-toggle-input:checked + .ocvc-toggle-track .ocvc-toggle-thumb {

@@ -132,6 +132,7 @@ class OCVC_API {
 	 *     @type float  $points_to_consume Points/budget the member wants to use (-1 = none).
 	 *     @type string $json_items       JSON items payload (optional).
 	 *     @type string $requested_promos Comma-separated promo IDs (optional).
+	 *     @type int    $void_transaction_id Void this committed transaction atomically before quoting (0 = none).
 	 * }
 	 * @return object Normalised quote (->is_error, ->transaction_id, ->discount, ->given_points_redemption, ->print_message).
 	 */
@@ -139,11 +140,12 @@ class OCVC_API {
 		$args = wp_parse_args(
 			$args,
 			array(
-				'card_number'       => '',
-				'transaction_sum'   => 0,
-				'points_to_consume' => -1,
-				'json_items'        => '',
-				'requested_promos'  => '',
+				'card_number'         => '',
+				'transaction_sum'     => 0,
+				'points_to_consume'   => -1,
+				'json_items'          => '',
+				'requested_promos'    => '',
+				'void_transaction_id' => 0,
 			)
 		);
 
@@ -157,7 +159,7 @@ class OCVC_API {
 			. '<CouponNum>' . (float) $args['points_to_consume'] . '</CouponNum>'
 			. '<PromoNum>-1</PromoNum>'
 			. '<PIN>0</PIN>'
-			. '<VoidTransactionId>0</VoidTransactionId>'
+			. '<VoidTransactionId>' . (int) $args['void_transaction_id'] . '</VoidTransactionId>'
 			. '<RequestedPromoIDs>' . $this->esc_xml( $args['requested_promos'] ) . '</RequestedPromoIDs>'
 			. '<RequestedPointsPromoIDs>0</RequestedPointsPromoIDs>'
 			. '<DisableRedemptions>-1</DisableRedemptions>'

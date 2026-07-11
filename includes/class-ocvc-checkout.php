@@ -282,7 +282,7 @@ class OCVC_Checkout {
 						<div class="ocvc-points-action">
 							<button type="button" class="ocvc-redeem-btn ocvc-redeem-open" id="ocvc-redeem-open"><?php echo esc_html( OCVC_Settings::get( 'redeem_button_label' ) ); ?></button>
 							<div class="ocvc-redeem-field" id="ocvc-redeem-field" hidden>
-								<input type="number" min="0" step="1" max="<?php echo esc_attr( $avail ); ?>" value="<?php echo esc_attr( self::num( $avail ) ); ?>" id="ocvc-amount" class="ocvc-amount" />
+								<input type="number" min="0" step="1" max="<?php echo esc_attr( (int) floor( $avail ) ); ?>" value="<?php echo esc_attr( (int) floor( $avail ) ); ?>" id="ocvc-amount" class="ocvc-amount" />
 								<button type="button" class="ocvc-redeem-btn ocvc-redeem-confirm" id="ocvc-apply-amount">&#10003; <?php esc_html_e( 'Redeem now', 'oc-valuecard' ); ?></button>
 							</div>
 						</div>
@@ -517,17 +517,23 @@ class OCVC_Checkout {
 			return;
 		}
 
-		// On the cart AND checkout, refresh the ValueCard quote so the automatic
-		// club benefit (and any redeemed points) stays in sync with the cart —
-		// otherwise the discount sticks at a stale value when items change on the
-		// cart page. The quote self-guards on the cart total, so ValueCard is only
-		// hit when the total actually changes.
-		if ( self::is_cart_or_checkout() ) {
-			self::ensure_benefit_query( false );
-		}
+		// Refresh the ValueCard quote so the automatic club benefit (and any redeemed
+		// points) always matches the CURRENT cart — on the cart, the checkout, and any
+		// custom/mini-cart context. The quote self-guards on the cart total, so
+		// ValueCard is only contacted when the total actually changes.
+		self::ensure_benefit_query( false );
 
 		$discount = (float) OCVC_Member::get( 'discount', 0 );
 		if ( $discount <= 0 ) {
+			return;
+		}
+
+		// Safety net against a stale discount: only apply it when it was quoted for
+		// THIS exact cart total. If the quote could not be refreshed (e.g. a context
+		// where the re-quote didn't run, or a transient API error), a leftover
+		// discount from a previous, larger cart is dropped instead of shown.
+		$qsum = OCVC_Member::get( 'qsum' );
+		if ( null === $qsum || abs( (float) $qsum - self::transaction_sum() ) > 0.01 ) {
 			return;
 		}
 
@@ -548,22 +554,6 @@ class OCVC_Checkout {
 		if ( $points > 0 ) {
 			$cart->add_fee( __( 'Points redemption', 'oc-valuecard' ), -1 * $points, false );
 		}
-	}
-
-	/**
-	 * Whether we are on/updating the cart or checkout (so an auto-quote is wanted).
-	 *
-	 * @return bool
-	 */
-	private static function is_cart_or_checkout() {
-		if ( function_exists( 'is_checkout' ) && is_checkout() ) {
-			return true;
-		}
-		if ( function_exists( 'is_cart' ) && is_cart() ) {
-			return true;
-		}
-		$ajax = isset( $_GET['wc-ajax'] ) ? sanitize_key( wp_unslash( $_GET['wc-ajax'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return in_array( $ajax, array( 'update_order_review', 'checkout' ), true );
 	}
 
 	/**
@@ -753,6 +743,123 @@ class OCVC_Checkout {
 		return wp_json_encode( $payload, JSON_UNESCAPED_UNICODE );
 	}
 
+	/* --------------------------------------------------------------------- *
+	 * Order-based quoting (server-side: reserve / edit re-sync / settle)
+	 *
+	 * After checkout there is no cart or WC session, so these mirror the
+	 * cart-based helpers above but read a saved WC_Order instead. Identity
+	 * comes from the order's _ocvc_card meta.
+	 * --------------------------------------------------------------------- */
+
+	/**
+	 * Build the ValueCard "JsonItems" payload from a SAVED ORDER.
+	 *
+	 * @param WC_Order $order Order.
+	 * @return string JSON string (empty when the order has no items).
+	 */
+	public static function build_json_items_from_order( $order ) {
+		if ( ! $order || ! method_exists( $order, 'get_items' ) ) {
+			return '';
+		}
+		$items = $order->get_items();
+		if ( empty( $items ) ) {
+			return '';
+		}
+
+		$trans_items = array();
+		$i           = 0;
+		foreach ( $items as $item ) {
+			$product = $item->get_product();
+			$qty     = (float) $item->get_quantity();
+			$total   = (float) $item->get_subtotal() + (float) $item->get_subtotal_tax();
+			$price   = $qty > 0 ? $total / $qty : ( $product ? (float) $product->get_price() : 0.0 );
+
+			$sku    = $product ? $product->get_sku() : '';
+			$extnum = $sku ? $sku : ( $product ? $product->get_id() : $item->get_product_id() );
+
+			$trans_items[] = array(
+				'ExtItemNum'    => (string) $extnum,
+				'SequentialNum' => $i,
+				'ItemName'      => wp_strip_all_tags( $item->get_name() ),
+				'ItemPrice'     => round( $price, 2 ),
+				'Amount'        => $qty,
+				'Total'         => round( $total, 2 ),
+				'BusinessCode'  => '',
+				'GroupName'     => '',
+				'Familly'       => '',
+			);
+			$i++;
+		}
+
+		if ( empty( $trans_items ) ) {
+			return '';
+		}
+
+		$payload = array(
+			'Trans' => array(
+				array(
+					'TransId'         => 0,
+					'OrderNum'        => 0,
+					'NumberOfClients' => 1,
+					'OrderType'       => 1,
+					'ClientNum'       => 1,
+					'TransItems'      => $trans_items,
+				),
+			),
+		);
+
+		return wp_json_encode( $payload, JSON_UNESCAPED_UNICODE );
+	}
+
+	/**
+	 * Base transaction sum for a SAVED ORDER (mirrors transaction_sum() for the cart).
+	 *
+	 * @param WC_Order $order Order.
+	 * @return float
+	 */
+	public static function transaction_sum_from_order( $order ) {
+		if ( ! $order || ! method_exists( $order, 'get_items' ) ) {
+			return 0.0;
+		}
+		$sum = 0.0;
+		foreach ( $order->get_items() as $item ) {
+			$sum += (float) $item->get_subtotal() + (float) $item->get_subtotal_tax();
+		}
+		$sum += (float) $order->get_shipping_total() + (float) $order->get_shipping_tax();
+		return $sum;
+	}
+
+	/**
+	 * A stable fingerprint of an order's ValueCard-relevant state (lines, totals,
+	 * weight). Lets the re-sync fire only when the order actually changed — not on
+	 * every trivial admin save.
+	 *
+	 * @param WC_Order $order Order.
+	 * @return string
+	 */
+	public static function order_signature( $order ) {
+		if ( ! $order || ! method_exists( $order, 'get_items' ) ) {
+			return '';
+		}
+		$parts  = array();
+		$weight = 0.0;
+		foreach ( $order->get_items() as $item ) {
+			$product = $item->get_product();
+			$pid     = $product ? $product->get_id() : $item->get_product_id();
+			$qty     = (float) $item->get_quantity();
+			$line    = (float) $item->get_subtotal() + (float) $item->get_subtotal_tax();
+			$parts[] = $pid . ':' . rtrim( rtrim( number_format( $qty, 3, '.', '' ), '0' ), '.' ) . ':' . number_format( $line, 2, '.', '' );
+			if ( $product && '' !== (string) $product->get_weight() ) {
+				$weight += (float) $product->get_weight() * $qty;
+			}
+		}
+		sort( $parts );
+		$sig = implode( '|', $parts )
+			. '#sum:' . number_format( self::transaction_sum_from_order( $order ), 2, '.', '' )
+			. '#w:' . number_format( $weight, 3, '.', '' );
+		return md5( $sig );
+	}
+
 	/**
 	 * AJAX: quote a redemption and store it in the session.
 	 *
@@ -772,7 +879,19 @@ class OCVC_Checkout {
 			$m      = OCVC_Member::ensure_balance();
 			$amount = ( $m && isset( $m->balance ) ) ? (float) $m->balance : 0;
 		}
-		$points = ( $amount > 0 ) ? $amount : -1;
+		// Never consume more points than the order is actually worth. The automatic
+		// club benefit already covers part of the cart, so the useful redemption is
+		// the payable amount (subtotal minus the benefit). Redeeming beyond that makes
+		// ValueCard shrink the benefit and burn extra points for no added discount.
+		$benefit_only = max( 0.0, (float) OCVC_Member::get( 'discount', 0 ) - (float) OCVC_Member::get( 'redeemed_points', 0 ) );
+		$payable      = self::transaction_sum() - $benefit_only;
+		if ( $payable > 0 && $amount > $payable ) {
+			$amount = $payable;
+		}
+		// ValueCard only accepts whole-number point redemptions — a fractional
+		// CouponNum (e.g. a 12.12 balance) is rejected. Floor to whole points.
+		$amount = floor( $amount );
+		$points = ( $amount >= 1 ) ? $amount : -1;
 
 		OCVC_Member::set( 'points_to_consume', $points );
 		$err = self::ensure_benefit_query( true );
