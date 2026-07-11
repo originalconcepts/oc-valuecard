@@ -517,10 +517,12 @@ class OCVC_Checkout {
 			return;
 		}
 
-		// On the checkout, refresh the ValueCard quote so the automatic club
-		// benefit (and any redeemed points) is reflected in the totals without
-		// the shopper having to do anything.
-		if ( self::is_checkout_context() ) {
+		// On the cart AND checkout, refresh the ValueCard quote so the automatic
+		// club benefit (and any redeemed points) stays in sync with the cart —
+		// otherwise the discount sticks at a stale value when items change on the
+		// cart page. The quote self-guards on the cart total, so ValueCard is only
+		// hit when the total actually changes.
+		if ( self::is_cart_or_checkout() ) {
 			self::ensure_benefit_query( false );
 		}
 
@@ -549,12 +551,15 @@ class OCVC_Checkout {
 	}
 
 	/**
-	 * Whether we are rendering / updating the checkout (so an auto-quote is wanted).
+	 * Whether we are on/updating the cart or checkout (so an auto-quote is wanted).
 	 *
 	 * @return bool
 	 */
-	private static function is_checkout_context() {
+	private static function is_cart_or_checkout() {
 		if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+			return true;
+		}
+		if ( function_exists( 'is_cart' ) && is_cart() ) {
 			return true;
 		}
 		$ajax = isset( $_GET['wc-ajax'] ) ? sanitize_key( wp_unslash( $_GET['wc-ajax'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -585,6 +590,17 @@ class OCVC_Checkout {
 			$points = -1;
 		}
 
+		$json = self::build_json_items();
+		if ( '' === $json ) {
+			// Empty cart — drop any stale discount instead of leaving it applied.
+			foreach ( array( 'discount', 'redeemed_points', 'earn', 'benefit_names', 'transaction_id' ) as $key ) {
+				OCVC_Member::set( $key, null );
+			}
+			OCVC_Member::set( 'qsum', 0 );
+			OCVC_Member::set( 'qpoints', $points );
+			return null;
+		}
+
 		$qtxn    = OCVC_Member::get( 'transaction_id' );
 		$qsum    = OCVC_Member::get( 'qsum' );
 		$qpoints = OCVC_Member::get( 'qpoints' );
@@ -599,7 +615,7 @@ class OCVC_Checkout {
 				'card_number'       => $card,
 				'transaction_sum'   => $sum,
 				'points_to_consume' => $points,
-				'json_items'        => self::build_json_items(),
+				'json_items'        => $json,
 			)
 		);
 
