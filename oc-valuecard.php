@@ -3,7 +3,7 @@
  * Plugin Name:       OC ValueCard
  * Plugin URI:        https://originalconcepts.co.il/
  * Description:        Plug-and-play ValueCard loyalty integration for WooCommerce — pulls member points, redeems them at checkout, and reports usage back to ValueCard. Credentials and behaviour are fully configurable per site.
- * Version:           0.3.0
+ * Version:           0.3.1
  * Author:            Original Concepts
  * Author URI:        https://originalconcepts.co.il/
  * Text Domain:       oc-valuecard
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'OCVC_VERSION', '0.3.0' );
+define( 'OCVC_VERSION', '0.3.1' );
 define( 'OCVC_PLUGIN_FILE', __FILE__ );
 define( 'OCVC_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'OCVC_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

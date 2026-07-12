@@ -171,6 +171,9 @@ Within a few hours (or after "Check again" on the Updates screen) every site see
 
 ## Changelog
 
+### 0.3.1
+Stability release — the full v0.2.0/v0.3.0 feature set (reserve → re-sync → settle lifecycle, enrolment form, redemption fixes) verified working on a live store.
+
 ### 0.3.0
 Join-the-club enrolment form: turning the join toggle on opens a popup form pre-filled from the billing fields (first/last name, phone, email) with optional birthday, anniversary and gender, plus an email/SMS marketing-consent checkbox. The confirmed details are stored on the order and sent in full to `RegisterClubMemberEx` (schema-ordered, incl. `IsMale`/`GenderId`, `BirthDate`, `AnniversaryDate`, separate `MessageAccept`/`TermsConsent`). Member details popup now also shows the anniversary and "member since" dates. Checkout box matches the deliz card style on that theme; mobile layout tightened.
 
