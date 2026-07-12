@@ -526,11 +526,11 @@ class OCVC_Checkout {
 						</label>
 						<label class="ocvc-join-field">
 							<span><?php esc_html_e( 'Birthday', 'oc-valuecard' ); ?></span>
-							<input type="date" id="ocvc-join-birth" max="<?php echo esc_attr( gmdate( 'Y-m-d' ) ); ?>" />
+							<input type="date" id="ocvc-join-birth" lang="en" dir="ltr" max="<?php echo esc_attr( gmdate( 'Y-m-d' ) ); ?>" />
 						</label>
 						<label class="ocvc-join-field">
 							<span><?php esc_html_e( 'Anniversary', 'oc-valuecard' ); ?></span>
-							<input type="date" id="ocvc-join-anniv" max="<?php echo esc_attr( gmdate( 'Y-m-d' ) ); ?>" />
+							<input type="date" id="ocvc-join-anniv" lang="en" dir="ltr" max="<?php echo esc_attr( gmdate( 'Y-m-d' ) ); ?>" />
 						</label>
 						<label class="ocvc-join-field">
 							<span><?php esc_html_e( 'Gender', 'oc-valuecard' ); ?></span>

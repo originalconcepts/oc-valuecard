@@ -171,6 +171,9 @@ Within a few hours (or after "Check again" on the Updates screen) every site see
 
 ## Changelog
 
+### 0.3.3
+Join form: the birthday and anniversary date pickers now open in English (`lang="en"`, LTR) instead of following the site language.
+
 ### 0.3.2
 Durable checkout placement: the loyalty box now relocates itself (JS) to sit as its own section above the payment card when a theme's only render hook places it inside the payment area (deliz-short). Theme-template edits are no longer required — theme deploys can't break the placement anymore.
 
