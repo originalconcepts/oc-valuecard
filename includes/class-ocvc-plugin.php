@@ -59,6 +59,7 @@ class OCVC_Plugin {
 			'includes/class-ocvc-member.php'   => 'OCVC_Member',
 			'includes/class-ocvc-checkout.php' => 'OCVC_Checkout',
 			'includes/class-ocvc-order.php'    => 'OCVC_Order',
+			'includes/class-ocvc-account.php'  => 'OCVC_Account',
 		);
 
 		foreach ( $components as $file => $class ) {

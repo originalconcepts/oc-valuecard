@@ -95,6 +95,13 @@ class OCVC_Settings {
 				'default' => 1,
 				'desc'    => __( 'After points are reserved, if staff edit the order (weight, quantity, items) the commit is updated to match (void + re-quote + re-commit). Turn off to only flag edits for manual review.', 'oc-valuecard' ),
 			),
+			'account_edit'      => array(
+				'section' => 'behaviour',
+				'label'   => __( 'Let members edit their club details in My Account', 'oc-valuecard' ),
+				'type'    => 'checkbox',
+				'default' => 0,
+				'desc'    => __( 'Requires the UpdateClubMember operation to be enabled for your POS account by ValueCard. Until then the club tab shows the details read-only.', 'oc-valuecard' ),
+			),
 			'pull_on_login'     => array(
 				'section' => 'behaviour',
 				'label'   => __( 'Pull points when a member logs in', 'oc-valuecard' ),

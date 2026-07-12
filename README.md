@@ -171,6 +171,9 @@ Within a few hours (or after "Check again" on the Updates screen) every site see
 
 ## Changelog
 
+### 0.4.0
+My Account "Club" tab (`/my-account/valuecard-club/`): points balance, member-since date, profile details and a **History** tab of recent accruals/redemptions (RecentCardActivity). Profile editing (UpdateClubMember, full form incl. birthday/anniversary/gender + marketing consent) is built in but ships behind the *"Let members edit their club details"* setting — the operation currently returns a server error for web-POS credentials and must first be enabled by ValueCard; until then the details show read-only. New API methods: `club_member_details()` (dormant — empty response for web-POS), `update_club_member()`, `recent_card_activity()`.
+
 ### 0.3.3
 Join form: the birthday and anniversary date pickers now open in English (`lang="en"`, LTR) instead of following the site language.
 

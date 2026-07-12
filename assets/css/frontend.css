@@ -659,6 +659,94 @@
 	}
 }
 
+/* ---------------- My Account — club tab ---------------- */
+.ocvc-account {
+	max-width: 760px;
+}
+
+.ocvc-acc-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.8em 2em;
+}
+
+.ocvc-acc-balance {
+	display: flex;
+	align-items: baseline;
+	gap: 0.3em;
+}
+
+.ocvc-acc-meta {
+	font-size: 0.92em;
+	opacity: 0.85;
+	display: flex;
+	flex-direction: column;
+	gap: 0.3em;
+}
+
+.ocvc-acc-tabs {
+	display: flex;
+	gap: 0.5em;
+	margin: 1em 0 0;
+}
+
+.ocvc-acc-tab {
+	background: #eef1f0;
+	color: #333;
+	border: 0;
+	border-radius: 999px;
+	padding: 0.5em 1.4em;
+	font: inherit;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.15s ease, color 0.15s ease;
+}
+
+.ocvc-acc-tab.is-active {
+	background: var(--ocvc-primary,#1aa251);
+	color: #fff;
+}
+
+.ocvc-acc-note {
+	font-size: 0.82em;
+	opacity: 0.65;
+	margin: 0.9em 0 0;
+}
+
+.ocvc-acc-save {
+	margin-top: 1.1em;
+}
+
+.ocvc-acc-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.9em;
+}
+
+.ocvc-acc-table th,
+.ocvc-acc-table td {
+	padding: 0.55em 0.6em;
+	border-bottom: 1px solid rgba( 0, 0, 0, 0.07 );
+	text-align: start;
+}
+
+.ocvc-acc-table th {
+	opacity: 0.7;
+	font-weight: 600;
+}
+
+@media ( max-width: 560px ) {
+	.ocvc-acc-table {
+		font-size: 0.8em;
+	}
+	.ocvc-acc-table th,
+	.ocvc-acc-table td {
+		padding: 0.45em 0.35em;
+	}
+}
+
 /* ---------------- Theme compat: deliz-short checkout ----------------
  * Make the loyalty box read as its own section (like the summary and payment
  * cards) by matching the theme's card style. Scoped to deliz's block class, so

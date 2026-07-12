@@ -120,6 +120,8 @@ class OCVC_API {
 		$result->birth_date    = isset( $node->BirthDate ) ? (string) $node->BirthDate : '';
 		$result->anniversary_date = isset( $node->AnniversaryDate ) ? (string) $node->AnniversaryDate : '';
 		$result->join_date        = isset( $node->JoinDate ) ? (string) $node->JoinDate : '';
+		$result->card_id          = isset( $node->CardId ) ? (string) $node->CardId : '';
+		$result->marcomm          = isset( $node->MarcommStatus ) ? (int) (string) $node->MarcommStatus : 1;
 
 		return $result;
 	}
@@ -394,6 +396,230 @@ class OCVC_API {
 		$result->is_error = $this->is_error( $node );
 		$raw_message      = isset( $node->Common->PrintMessage ) ? (string) $node->Common->PrintMessage : '';
 		$result->message  = trim( explode( '=', $raw_message )[0] );
+
+		return $result;
+	}
+
+	/**
+	 * Full club-member profile (richer than card_information: address, member id,
+	 * join date). Used by the My Account club tab.
+	 *
+	 * @param string $card_number Card number or member phone.
+	 * @return object Normalised result (->is_error plus profile fields).
+	 */
+	public function club_member_details( $card_number ) {
+		$card = $this->esc_xml( $card_number );
+
+		$body = '<ClubMemberDetails xmlns="' . self::SOAP_NS . '">'
+			. '<RequestParameters>'
+			. $this->common_block( $card )
+			. '<CardNumber>' . $card . '</CardNumber>'
+			. '<MemberID>0</MemberID>'
+			. '</RequestParameters>'
+			. '</ClubMemberDetails>';
+
+		$xml = $this->soap_request( 'ClubMemberDetails', $body );
+
+		$result           = new stdClass();
+		$result->is_error = true;
+		$result->message  = '';
+
+		$node = ( $xml && isset( $xml->soapBody->ClubMemberDetailsResponse->ClubMemberDetailsResult ) )
+			? $xml->soapBody->ClubMemberDetailsResponse->ClubMemberDetailsResult
+			: null;
+
+		if ( ! $node ) {
+			return $result;
+		}
+
+		$result->is_error     = $this->is_error( $node );
+		$result->message      = isset( $node->Common->Message ) ? (string) $node->Common->Message : '';
+		$result->first_name   = isset( $node->FirstName ) ? (string) $node->FirstName : '';
+		$result->last_name    = isset( $node->LastName ) ? (string) $node->LastName : '';
+		$result->birth_day    = isset( $node->BirthDay ) ? (string) $node->BirthDay : '';
+		$result->anniversary  = isset( $node->anniversaryDate ) ? (string) $node->anniversaryDate : '';
+		$result->cell_phone   = isset( $node->CellPhone ) ? (string) $node->CellPhone : '';
+		$result->phone        = isset( $node->Phone ) ? (string) $node->Phone : '';
+		$result->email        = isset( $node->Email ) ? (string) $node->Email : '';
+		$result->address      = isset( $node->Address ) ? (string) $node->Address : '';
+		$result->city         = isset( $node->City ) ? (string) $node->City : '';
+		$result->zipcode      = isset( $node->Zipcode ) ? (string) $node->Zipcode : '';
+		$result->member_id    = isset( $node->memberID ) ? (string) $node->memberID : '';
+		$result->member_class = isset( $node->memberClass ) ? (string) $node->memberClass : '';
+		$result->balance      = isset( $node->Balance ) ? (float) $node->Balance : 0.0;
+		$result->card_group   = isset( $node->CardGroup ) ? (string) $node->CardGroup : '';
+		$result->card_status  = isset( $node->CardStatus ) ? (string) $node->CardStatus : '';
+		$result->card_id      = isset( $node->CardId ) ? (string) $node->CardId : '';
+		$result->card_num     = isset( $node->CardNum ) ? (string) $node->CardNum : '';
+		$result->create_date  = isset( $node->CreateDate ) ? (string) $node->CreateDate : '';
+		$result->is_active    = isset( $node->IsActive ) ? (string) $node->IsActive : '';
+
+		return $result;
+	}
+
+	/**
+	 * Update an existing club member's details.
+	 *
+	 * NOTE the ValueCard schema quirks reproduced on purpose: the anniversary
+	 * element is spelled <AnniverssaryDate> and the member-id element is
+	 * <memberID> (lower-case m).
+	 *
+	 * @param array $args {
+	 *     @type string $card_number      Member phone/card (identity — unchanged).
+	 *     @type string $member_id        ValueCard memberID (from club_member_details).
+	 *     @type string $first_name       First name.
+	 *     @type string $last_name        Last name.
+	 *     @type string $email            Email.
+	 *     @type string $birth_date       Y-m-d ('' = none).
+	 *     @type string $anniversary_date Y-m-d ('' = none).
+	 *     @type string $gender           'male' / 'female' / ''.
+	 *     @type string $address          Street address.
+	 *     @type string $zipcode          Postcode.
+	 *     @type int    $marketing        Marketing consent (MarcommStatus, 0/1).
+	 * }
+	 * @return object Normalised result (->is_error, ->message).
+	 */
+	public function update_club_member( $args ) {
+		$args = wp_parse_args(
+			$args,
+			array(
+				'card_number'      => '',
+				'member_id'        => '',
+				'first_name'       => '',
+				'last_name'        => '',
+				'email'            => '',
+				'birth_date'       => '',
+				'anniversary_date' => '',
+				'gender'           => '',
+				'address'          => '',
+				'zipcode'          => '',
+				'marketing'        => 1,
+			)
+		);
+
+		$card  = $this->esc_xml( $args['card_number'] );
+		$phone = preg_replace( '/\D/', '', (string) $args['card_number'] );
+
+		$dates = array(
+			'birth_date'       => '',
+			'anniversary_date' => '',
+		);
+		foreach ( $dates as $key => $unused ) {
+			if ( ! empty( $args[ $key ] ) && false !== strtotime( $args[ $key ] ) ) {
+				$dates[ $key ] = gmdate( 'Y-m-d', strtotime( $args[ $key ] ) );
+			}
+		}
+
+		$gender     = strtolower( (string) $args['gender'] );
+		$ext_gender = '';
+		if ( 'male' === $gender ) {
+			$ext_gender = '1';
+		} elseif ( 'female' === $gender ) {
+			$ext_gender = '2';
+		}
+
+		// Element order follows the UpdateClubMember schema. Value-typed elements
+		// (dates, gender, TerminalID, IDNum) are OMITTED when empty — .NET's
+		// XmlSerializer faults on an empty string inside a DateTime/int element.
+		$parts   = array();
+		$parts[] = '<CardNumber>' . $card . '</CardNumber>';
+		if ( '' !== $ext_gender ) {
+			$parts[] = '<ExtGender>' . $ext_gender . '</ExtGender>';
+		}
+		$parts[] = '<FirstName>' . $this->esc_xml( $args['first_name'] ) . '</FirstName>';
+		$parts[] = '<LastName>' . $this->esc_xml( $args['last_name'] ) . '</LastName>';
+		if ( '' !== $dates['birth_date'] ) {
+			$parts[] = '<BirthDay>' . $dates['birth_date'] . '</BirthDay>';
+		}
+		$parts[] = '<CellPhone>' . $this->esc_xml( $phone ) . '</CellPhone>';
+		$parts[] = '<Email>' . $this->esc_xml( $args['email'] ) . '</Email>';
+		if ( '' !== $dates['anniversary_date'] ) {
+			$parts[] = '<AnniverssaryDate>' . $dates['anniversary_date'] . '</AnniverssaryDate>';
+		}
+		$parts[] = '<Phone>' . $this->esc_xml( $phone ) . '</Phone>';
+		$parts[] = '<Address>' . $this->esc_xml( $args['address'] ) . '</Address>';
+		$parts[] = '<Zipcode>' . $this->esc_xml( $args['zipcode'] ) . '</Zipcode>';
+		if ( '' !== (string) $args['member_id'] ) {
+			$parts[] = '<memberID>' . $this->esc_xml( $args['member_id'] ) . '</memberID>';
+		}
+		$parts[] = '<MarcommStatus>' . ( (int) (bool) $args['marketing'] ) . '</MarcommStatus>';
+
+		$body = '<UpdateClubMember xmlns="' . self::SOAP_NS . '">'
+			. '<RequestParameters>'
+			. $this->common_block( $card )
+			. implode( '', $parts )
+			. '</RequestParameters>'
+			. '</UpdateClubMember>';
+
+		$xml = $this->soap_request( 'UpdateClubMember', $body );
+
+		$result           = new stdClass();
+		$result->is_error = true;
+		$result->message  = '';
+
+		$node = ( $xml && isset( $xml->soapBody->UpdateClubMemberResponse->UpdateClubMemberResult ) )
+			? $xml->soapBody->UpdateClubMemberResponse->UpdateClubMemberResult
+			: null;
+
+		if ( ! $node ) {
+			return $result;
+		}
+
+		$result->is_error = $this->is_error( $node );
+		$result->message  = isset( $node->Message ) ? (string) $node->Message : '';
+
+		return $result;
+	}
+
+	/**
+	 * Recent card activity (accruals / redemptions) for the history tab.
+	 *
+	 * @param string $card_number Card number or member phone.
+	 * @param string $card_id     Optional ValueCard CardId (from club_member_details).
+	 * @return object { is_error:bool, rows:array of row objects }
+	 */
+	public function recent_card_activity( $card_number, $card_id = '0' ) {
+		$card = $this->esc_xml( $card_number );
+
+		$body = '<RecentCardActivity xmlns="' . self::SOAP_NS . '">'
+			. '<RequestParameters>'
+			. $this->common_block( $card )
+			. '<CardNumber>' . $card . '</CardNumber>'
+			. '<CardId>' . (int) $card_id . '</CardId>'
+			. '</RequestParameters>'
+			. '</RecentCardActivity>';
+
+		$xml = $this->soap_request( 'RecentCardActivity', $body );
+
+		$result           = new stdClass();
+		$result->is_error = true;
+		$result->rows     = array();
+
+		$node = ( $xml && isset( $xml->soapBody->RecentCardActivityResponse->RecentCardActivityResult ) )
+			? $xml->soapBody->RecentCardActivityResponse->RecentCardActivityResult
+			: null;
+
+		if ( ! $node ) {
+			return $result;
+		}
+
+		$result->is_error = false;
+		if ( isset( $node->Rows->RecentCardActivityRows ) ) {
+			foreach ( $node->Rows->RecentCardActivityRows as $row ) {
+				$result->rows[] = (object) array(
+					'trans_id'      => isset( $row->TransId ) ? (string) $row->TransId : '',
+					'date'          => isset( $row->TransDate ) ? (string) $row->TransDate : '',
+					'action'        => isset( $row->OpcodeText ) ? (string) $row->OpcodeText : '',
+					'location'      => isset( $row->LocationText ) ? (string) $row->LocationText : '',
+					'amount'        => isset( $row->Amount ) ? (float) $row->Amount : 0.0,
+					'final_amount'  => isset( $row->FinalAmount ) ? (float) $row->FinalAmount : 0.0,
+					'discount'      => isset( $row->Discount ) ? (float) $row->Discount : 0.0,
+					'promotion'     => isset( $row->Promotion ) ? (string) $row->Promotion : '',
+					'points_used'   => isset( $row->PointsUsed ) ? (float) $row->PointsUsed : 0.0,
+					'points_earned' => isset( $row->PointsEarned ) ? (float) $row->PointsEarned : 0.0,
+				);
+			}
+		}
 
 		return $result;
 	}

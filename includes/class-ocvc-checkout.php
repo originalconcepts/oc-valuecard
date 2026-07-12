@@ -113,7 +113,11 @@ class OCVC_Checkout {
 	 * @return void
 	 */
 	public static function enqueue() {
-		if ( ! function_exists( 'is_checkout' ) || ! is_checkout() ) {
+		if ( ! function_exists( 'is_checkout' ) ) {
+			return;
+		}
+		// Assets are shared by the checkout box and the My Account club tab.
+		if ( ! is_checkout() && ! ( function_exists( 'is_account_page' ) && is_account_page() ) ) {
 			return;
 		}
 
