@@ -77,7 +77,7 @@ class OCVC_Member {
 	 * @return void
 	 */
 	public static function clear() {
-		foreach ( array( 'phone', 'verified', 'member_info', 'member_info_ts', 'points_to_consume', 'transaction_id', 'discount', 'redeemed_points', 'earn', 'benefit_names', 'qsum', 'qpoints' ) as $key ) {
+		foreach ( array( 'phone', 'verified', 'member_info', 'member_info_ts', 'join_data', 'points_to_consume', 'transaction_id', 'discount', 'redeemed_points', 'earn', 'benefit_names', 'qsum', 'qpoints' ) as $key ) {
 			self::set( $key, null );
 		}
 	}
@@ -167,9 +167,11 @@ class OCVC_Member {
 			'phone'      => $is_member ? ( $info->cell_phone ? $info->cell_phone : $card ) : '',
 			'card_group' => $is_member ? $info->card_group : '',
 			'status'     => $is_member ? $info->status_text : '',
-			'member_id'  => $is_member ? $info->member_id : '',
-			'birth_date' => $is_member ? self::format_date( $info->birth_date ) : '',
-			'benefits'   => $is_member ? self::parse_benefits( $info->user_benefits_json, $info->available_benefits ) : array(),
+			'member_id'   => $is_member ? $info->member_id : '',
+			'birth_date'  => $is_member ? self::format_date( $info->birth_date ) : '',
+			'anniversary' => $is_member ? self::format_date( $info->anniversary_date ) : '',
+			'join_date'   => $is_member ? self::format_date( $info->join_date ) : '',
+			'benefits'    => $is_member ? self::parse_benefits( $info->user_benefits_json, $info->available_benefits ) : array(),
 		);
 
 		self::set( 'phone', $card );

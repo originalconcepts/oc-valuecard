@@ -118,6 +118,8 @@ class OCVC_API {
 		$result->status_text   = isset( $node->StatusText ) ? (string) $node->StatusText : '';
 		$result->card_units    = isset( $node->CardUnitsDescription ) ? (string) $node->CardUnitsDescription : '';
 		$result->birth_date    = isset( $node->BirthDate ) ? (string) $node->BirthDate : '';
+		$result->anniversary_date = isset( $node->AnniversaryDate ) ? (string) $node->AnniversaryDate : '';
+		$result->join_date        = isset( $node->JoinDate ) ? (string) $node->JoinDate : '';
 
 		return $result;
 	}
@@ -293,14 +295,17 @@ class OCVC_API {
 	 * Register a new club member (used when a non-member ticks "Join the club").
 	 *
 	 * @param array $args {
-	 *     @type string $first_name First name.
-	 *     @type string $last_name  Last name.
-	 *     @type string $phone      Cell phone (identifier).
-	 *     @type string $email      Email.
-	 *     @type string $address    Street address.
-	 *     @type string $zip        Postcode.
-	 *     @type int    $marketing  Terms/marketing consent (0/1).
-	 *     @type string $birth_date Optional Y-m-d birth date.
+	 *     @type string $first_name       First name.
+	 *     @type string $last_name        Last name.
+	 *     @type string $phone            Cell phone (identifier).
+	 *     @type string $email            Email.
+	 *     @type string $address          Street address.
+	 *     @type string $zip              Postcode.
+	 *     @type int    $marketing        Marketing consent — email/SMS (MessageAccept, 0/1).
+	 *     @type int    $terms            Terms consent (TermsConsent, 0/1).
+	 *     @type string $birth_date       Optional Y-m-d birth date.
+	 *     @type string $anniversary_date Optional Y-m-d anniversary date.
+	 *     @type string $gender           Optional 'male' / 'female' / ''.
 	 * }
 	 * @return object Normalised result (->is_error, ->message, ->phone).
 	 */
@@ -308,39 +313,62 @@ class OCVC_API {
 		$args = wp_parse_args(
 			$args,
 			array(
-				'first_name' => '',
-				'last_name'  => '',
-				'phone'      => '',
-				'email'      => '',
-				'address'    => '',
-				'zip'        => '',
-				'marketing'  => 0,
-				'birth_date' => '',
+				'first_name'       => '',
+				'last_name'        => '',
+				'phone'            => '',
+				'email'            => '',
+				'address'          => '',
+				'zip'              => '',
+				'marketing'        => 0,
+				'terms'            => 1,
+				'birth_date'       => '',
+				'anniversary_date' => '',
+				'gender'           => '',
 			)
 		);
 
-		$birth = '';
-		if ( ! empty( $args['birth_date'] ) && false !== strtotime( $args['birth_date'] ) ) {
-			$birth = '<BirthDate>' . $this->esc_xml( $args['birth_date'] ) . '</BirthDate>';
-		}
-
 		$phone = preg_replace( '/\D/', '', (string) $args['phone'] );
 
+		$dates = array(
+			'BirthDate'       => '',
+			'AnniversaryDate' => '',
+		);
+		foreach ( array( 'birth_date' => 'BirthDate', 'anniversary_date' => 'AnniversaryDate' ) as $key => $tag ) {
+			if ( ! empty( $args[ $key ] ) && false !== strtotime( $args[ $key ] ) ) {
+				$dates[ $tag ] = '<' . $tag . '>' . gmdate( 'Y-m-d', strtotime( $args[ $key ] ) ) . '</' . $tag . '>';
+			}
+		}
+
+		// Gender: IsMale + GenderId (1 = male, 2 = female); both omitted/0 when unspecified.
+		$gender    = strtolower( (string) $args['gender'] );
+		$is_male   = '';
+		$gender_id = 0;
+		if ( 'male' === $gender ) {
+			$is_male   = '<IsMale>true</IsMale>';
+			$gender_id = 1;
+		} elseif ( 'female' === $gender ) {
+			$is_male   = '<IsMale>false</IsMale>';
+			$gender_id = 2;
+		}
+
+		// Element order follows the RegisterClubMemberEx schema.
 		$body = '<RegisterClubMemberEx xmlns="' . self::SOAP_NS . '">'
 			. '<RequestParameters>'
 			. $this->common_block( '-1' )
 			. '<CardNumber>-1</CardNumber>'
 			. '<FirstName>' . $this->esc_xml( $args['first_name'] ) . '</FirstName>'
 			. '<LastName>' . $this->esc_xml( $args['last_name'] ) . '</LastName>'
-			. $birth
+			. $is_male
+			. $dates['BirthDate']
+			. $dates['AnniversaryDate']
 			. '<Phone>' . $this->esc_xml( $phone ) . '</Phone>'
 			. '<CellPhone>' . $this->esc_xml( $phone ) . '</CellPhone>'
 			. '<Email>' . $this->esc_xml( $args['email'] ) . '</Email>'
 			. '<Address>' . $this->esc_xml( $args['address'] ) . '</Address>'
 			. '<ZipCode>' . $this->esc_xml( $args['zip'] ) . '</ZipCode>'
-			. '<TermsConsent>' . (int) $args['marketing'] . '</TermsConsent>'
-			. '<MessageAccept>' . (int) $args['marketing'] . '</MessageAccept>'
-			. '<GenderId>0</GenderId>'
+			. '<MessageAccept>' . ( (int) (bool) $args['marketing'] ) . '</MessageAccept>'
+			. '<TermsConsent>' . ( (int) (bool) $args['terms'] ) . '</TermsConsent>'
+			. '<GenderId>' . (int) $gender_id . '</GenderId>'
 			. '</RequestParameters>'
 			. '</RegisterClubMemberEx>';
 

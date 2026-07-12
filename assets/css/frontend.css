@@ -583,6 +583,72 @@
 .ocvc-join-content {
 	text-align: start;
 	line-height: 1.6;
+	margin-bottom: 1em;
+}
+
+/* Join popup enrolment form */
+.ocvc-join-form {
+	text-align: start;
+}
+
+.ocvc-join-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.7em 0.8em;
+}
+
+.ocvc-join-field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25em;
+	margin: 0;
+	font-size: 0.85em;
+}
+
+.ocvc-join-field > span {
+	opacity: 0.75;
+	font-weight: 600;
+}
+
+.ocvc-join-field input,
+.ocvc-join-field select {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 0.55em 0.65em;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	font: inherit;
+	font-size: 1.05em;
+	background: #fff;
+	min-height: 2.7em;
+}
+
+.ocvc-join-field input:focus,
+.ocvc-join-field select:focus {
+	outline: none;
+	border-color: var(--ocvc-primary,#1aa251);
+}
+
+.ocvc-join-consent {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.5em;
+	margin: 1em 0 0;
+	font-size: 0.88em;
+	line-height: 1.45;
+	cursor: pointer;
+	text-align: start;
+}
+
+.ocvc-join-consent input {
+	margin: 0.2em 0 0;
+	flex: 0 0 auto;
+}
+
+@media ( max-width: 480px ) {
+	.ocvc-join-grid {
+		grid-template-columns: 1fr;
+	}
 }
 
 @media ( max-width: 480px ) {

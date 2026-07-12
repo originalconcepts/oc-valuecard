@@ -171,6 +171,9 @@ Within a few hours (or after "Check again" on the Updates screen) every site see
 
 ## Changelog
 
+### 0.3.0
+Join-the-club enrolment form: turning the join toggle on opens a popup form pre-filled from the billing fields (first/last name, phone, email) with optional birthday, anniversary and gender, plus an email/SMS marketing-consent checkbox. The confirmed details are stored on the order and sent in full to `RegisterClubMemberEx` (schema-ordered, incl. `IsMale`/`GenderId`, `BirthDate`, `AnniversaryDate`, separate `MessageAccept`/`TermsConsent`). Member details popup now also shows the anniversary and "member since" dates. Checkout box matches the deliz card style on that theme; mobile layout tightened.
+
 ### 0.2.0
 Commit lifecycle reworked for order edits: **reserve** on configurable status(es) (multi-select, default On hold + Processing), **re-sync** to ValueCard when an order is edited (`void → re-quote-from-order → commit`, verified-safe), **settle & lock** on the final status, and full **void** on cancel/refund (reverses spend + accrual). New order-based quoting (`build_json_items_from_order`, `transaction_sum_from_order`, `order_signature`) so quotes can run from a saved order with no cart/session. Fixes the "commit never fired" case where the order's landing status didn't match the single configured status.
 

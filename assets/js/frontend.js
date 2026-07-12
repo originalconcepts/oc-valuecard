@@ -210,19 +210,83 @@
 			} );
 	}
 
-	/* ----- Join popup ----------------------------------------------------- */
+	/* ----- Join popup (enrolment form) ------------------------------------ */
+
+	var joinSaved = false;
+
+	// Pre-fill the enrolment form from the billing fields (empty fields only,
+	// so a re-open never overwrites what the customer typed).
+	function prefillJoin() {
+		var map = {
+			'#ocvc-join-fname': '#billing_first_name',
+			'#ocvc-join-lname': '#billing_last_name',
+			'#ocvc-join-phone': '#billing_phone',
+			'#ocvc-join-email': '#billing_email'
+		};
+		$.each( map, function ( dst, src ) {
+			var $dst = $( dst );
+			if ( $dst.length && ! $dst.val() ) {
+				$dst.val( $( src ).val() || '' );
+			}
+		} );
+	}
+
+	function openJoin() {
+		prefillJoin();
+		setMsg( '#ocvc-join-msg', '', false );
+		openModal( '#ocvc-join-modal' );
+		setTimeout( function () { $( '#ocvc-join-fname' ).trigger( 'focus' ); }, 50 );
+	}
 
 	$( document ).on( 'click', '#ocvc-join-details', function ( e ) {
 		e.preventDefault();
 		e.stopPropagation();
-		openModal( '#ocvc-join-modal' );
+		openJoin();
 	} );
 
-	// Join popup: primary button turns the toggle on and closes; secondary just closes.
+	// Turning the toggle on opens the enrolment form (once, until it is saved).
+	$( document ).on( 'change', '#ocvc-join-club', function () {
+		if ( this.checked && ! joinSaved ) {
+			openJoin();
+		}
+	} );
+
+	// Primary button: save the details, keep the toggle on, close.
 	$( document ).on( 'click', '#ocvc-join-accept', function ( e ) {
 		e.preventDefault();
-		$( '#ocvc-join-club' ).prop( 'checked', true ).trigger( 'change' );
-		closeModal();
+		var $btn  = $( this );
+		var phone = ( $( '#ocvc-join-phone' ).val() || '' ).replace( /\D/g, '' );
+
+		if ( ! ( $( '#ocvc-join-fname' ).val() || '' ).trim() || phone.length < 6 ) {
+			setMsg( '#ocvc-join-msg', ocvc.i18n.join_missing, true );
+			return;
+		}
+
+		$btn.prop( 'disabled', true );
+		post( 'ocvc_join_save', {
+			first_name:       $( '#ocvc-join-fname' ).val(),
+			last_name:        $( '#ocvc-join-lname' ).val(),
+			phone:            $( '#ocvc-join-phone' ).val(),
+			email:            $( '#ocvc-join-email' ).val(),
+			birth_date:       $( '#ocvc-join-birth' ).val(),
+			anniversary_date: $( '#ocvc-join-anniv' ).val(),
+			gender:           $( '#ocvc-join-gender' ).val(),
+			marketing:        $( '#ocvc-join-marketing' ).is( ':checked' ) ? 1 : 0
+		} )
+			.done( function ( res ) {
+				$btn.prop( 'disabled', false );
+				if ( res && res.success ) {
+					joinSaved = true;
+					$( '#ocvc-join-club' ).prop( 'checked', true ).trigger( 'change' );
+					closeModal();
+				} else {
+					setMsg( '#ocvc-join-msg', res && res.data ? res.data.message : ocvc.i18n.error, true );
+				}
+			} )
+			.fail( function () {
+				$btn.prop( 'disabled', false );
+				setMsg( '#ocvc-join-msg', ocvc.i18n.error, true );
+			} );
 	} );
 
 	$( document ).on( 'click', '#ocvc-join-decline', function ( e ) {

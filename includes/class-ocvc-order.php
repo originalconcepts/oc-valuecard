@@ -112,10 +112,15 @@ class OCVC_Order {
 			$order->update_meta_data( '_ocvc_earn', (float) OCVC_Member::get( 'earn', 0 ) );
 		}
 
-		// "Join the club" checkbox (posted with the checkout form).
+		// "Join the club" toggle (posted with the checkout form) + the enrolment
+		// details the customer confirmed in the join popup (kept in the session).
 		$join = isset( $_POST['ocvc_join_club'] ) ? (int) wp_unslash( $_POST['ocvc_join_club'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce verifies the checkout nonce.
 		if ( $join ) {
 			$order->update_meta_data( '_ocvc_join_club', 1 );
+			$join_data = OCVC_Member::get( 'join_data' );
+			if ( is_array( $join_data ) && ! empty( $join_data ) ) {
+				$order->update_meta_data( '_ocvc_join_data', wp_json_encode( $join_data, JSON_UNESCAPED_UNICODE ) );
+			}
 		}
 	}
 
@@ -137,6 +142,8 @@ class OCVC_Order {
 		// Drop the cached balance so the next checkout reflects the points just spent.
 		OCVC_Member::set( 'member_info', null );
 		OCVC_Member::set( 'member_info_ts', null );
+		// The enrolment details were copied onto the order — clear the session copy.
+		OCVC_Member::set( 'join_data', null );
 	}
 
 	/**
@@ -498,15 +505,24 @@ class OCVC_Order {
 			return;
 		}
 
+		// Prefer the details the customer confirmed in the join popup; fall back to
+		// the billing fields for anything missing (or when no popup data exists).
+		$data = json_decode( (string) $order->get_meta( '_ocvc_join_data' ), true );
+		$data = is_array( $data ) ? $data : array();
+
 		$result = $api->register_member(
 			array(
-				'first_name' => $order->get_billing_first_name(),
-				'last_name'  => $order->get_billing_last_name(),
-				'phone'      => $order->get_billing_phone(),
-				'email'      => $order->get_billing_email(),
-				'address'    => $order->get_billing_address_1(),
-				'zip'        => $order->get_billing_postcode(),
-				'marketing'  => 1,
+				'first_name'       => ! empty( $data['first_name'] ) ? $data['first_name'] : $order->get_billing_first_name(),
+				'last_name'        => ! empty( $data['last_name'] ) ? $data['last_name'] : $order->get_billing_last_name(),
+				'phone'            => ! empty( $data['phone'] ) ? $data['phone'] : $order->get_billing_phone(),
+				'email'            => ! empty( $data['email'] ) ? $data['email'] : $order->get_billing_email(),
+				'address'          => $order->get_billing_address_1(),
+				'zip'              => $order->get_billing_postcode(),
+				'marketing'        => array_key_exists( 'marketing', $data ) ? (int) $data['marketing'] : 1,
+				'terms'            => 1,
+				'birth_date'       => isset( $data['birth_date'] ) ? $data['birth_date'] : '',
+				'anniversary_date' => isset( $data['anniversary_date'] ) ? $data['anniversary_date'] : '',
+				'gender'           => isset( $data['gender'] ) ? $data['gender'] : '',
 			)
 		);
 

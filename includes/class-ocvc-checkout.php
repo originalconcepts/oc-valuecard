@@ -40,6 +40,8 @@ class OCVC_Checkout {
 		add_action( 'wp_ajax_nopriv_ocvc_apply_points', array( __CLASS__, 'ajax_apply_points' ) );
 		add_action( 'wp_ajax_ocvc_clear_points', array( __CLASS__, 'ajax_clear_points' ) );
 		add_action( 'wp_ajax_nopriv_ocvc_clear_points', array( __CLASS__, 'ajax_clear_points' ) );
+		add_action( 'wp_ajax_ocvc_join_save', array( __CLASS__, 'ajax_join_save' ) );
+		add_action( 'wp_ajax_nopriv_ocvc_join_save', array( __CLASS__, 'ajax_join_save' ) );
 
 		// Shortcode so custom checkouts can place the loyalty area anywhere.
 		add_shortcode( 'oc_valuecard', array( __CLASS__, 'shortcode' ) );
@@ -136,6 +138,7 @@ class OCVC_Checkout {
 					'applying'      => __( 'Applying…', 'oc-valuecard' ),
 					'invalid_phone' => __( 'Please enter a valid phone number.', 'oc-valuecard' ),
 					'error'         => __( 'Something went wrong. Please try again.', 'oc-valuecard' ),
+					'join_missing'  => __( 'Please fill in a first name and a valid phone number.', 'oc-valuecard' ),
 				),
 			)
 		);
@@ -380,6 +383,12 @@ class OCVC_Checkout {
 					<?php if ( ! empty( $m->birth_date ) ) : ?>
 						<li><span><?php esc_html_e( 'Birthday', 'oc-valuecard' ); ?></span><strong><?php echo esc_html( $m->birth_date ); ?></strong></li>
 					<?php endif; ?>
+					<?php if ( ! empty( $m->anniversary ) ) : ?>
+						<li><span><?php esc_html_e( 'Anniversary', 'oc-valuecard' ); ?></span><strong><?php echo esc_html( $m->anniversary ); ?></strong></li>
+					<?php endif; ?>
+					<?php if ( ! empty( $m->join_date ) ) : ?>
+						<li><span><?php esc_html_e( 'Member since', 'oc-valuecard' ); ?></span><strong><?php echo esc_html( $m->join_date ); ?></strong></li>
+					<?php endif; ?>
 				</ul>
 				<?php if ( ! empty( $m->benefits ) ) : ?>
 					<h4><?php esc_html_e( 'Your benefits', 'oc-valuecard' ); ?></h4>
@@ -404,7 +413,7 @@ class OCVC_Checkout {
 	 */
 	private static function render_prospect_box() {
 		$has_join  = OCVC_Settings::get_bool( 'enable_join_club' );
-		$has_popup = trim( (string) OCVC_Settings::get( 'join_popup_content' ) ) !== '';
+		$has_popup = $has_join; // The popup now always exists (it carries the join form).
 		?>
 		<div class="ocvc-prospect">
 			<?php if ( $has_join ) : ?>
@@ -487,14 +496,63 @@ class OCVC_Checkout {
 			</div>
 		</div>
 
-		<?php if ( trim( (string) OCVC_Settings::get( 'join_popup_content' ) ) !== '' ) : ?>
+		<?php if ( OCVC_Settings::get_bool( 'enable_join_club' ) ) : ?>
 		<div class="ocvc-modal" id="ocvc-join-modal" hidden>
-			<div class="ocvc-modal-inner">
+			<div class="ocvc-modal-inner ocvc-join">
 				<button type="button" class="ocvc-modal-close" data-ocvc-close aria-label="<?php esc_attr_e( 'Close', 'oc-valuecard' ); ?>">&times;</button>
-				<div class="ocvc-join-content"><?php echo wp_kses_post( wpautop( OCVC_Settings::get( 'join_popup_content' ) ) ); ?></div>
-				<div class="ocvc-join-actions">
-					<button type="button" class="ocvc-redeem-btn ocvc-join-accept" id="ocvc-join-accept"><?php esc_html_e( 'Join for free', 'oc-valuecard' ); ?></button>
-					<button type="button" class="ocvc-btn-muted" id="ocvc-join-decline"><?php esc_html_e( 'Maybe later', 'oc-valuecard' ); ?></button>
+
+				<?php $ocvc_join_content = trim( (string) OCVC_Settings::get( 'join_popup_content' ) ); ?>
+				<?php if ( '' !== $ocvc_join_content ) : ?>
+					<div class="ocvc-join-content"><?php echo wp_kses_post( wpautop( $ocvc_join_content ) ); ?></div>
+				<?php endif; ?>
+
+				<div class="ocvc-join-form" id="ocvc-join-form">
+					<div class="ocvc-join-grid">
+						<label class="ocvc-join-field">
+							<span><?php esc_html_e( 'First name', 'oc-valuecard' ); ?> *</span>
+							<input type="text" id="ocvc-join-fname" autocomplete="given-name" />
+						</label>
+						<label class="ocvc-join-field">
+							<span><?php esc_html_e( 'Last name', 'oc-valuecard' ); ?></span>
+							<input type="text" id="ocvc-join-lname" autocomplete="family-name" />
+						</label>
+						<label class="ocvc-join-field">
+							<span><?php esc_html_e( 'Phone', 'oc-valuecard' ); ?> *</span>
+							<input type="tel" id="ocvc-join-phone" inputmode="tel" dir="ltr" autocomplete="tel" />
+						</label>
+						<label class="ocvc-join-field">
+							<span><?php esc_html_e( 'Email', 'oc-valuecard' ); ?></span>
+							<input type="email" id="ocvc-join-email" dir="ltr" autocomplete="email" />
+						</label>
+						<label class="ocvc-join-field">
+							<span><?php esc_html_e( 'Birthday', 'oc-valuecard' ); ?></span>
+							<input type="date" id="ocvc-join-birth" max="<?php echo esc_attr( gmdate( 'Y-m-d' ) ); ?>" />
+						</label>
+						<label class="ocvc-join-field">
+							<span><?php esc_html_e( 'Anniversary', 'oc-valuecard' ); ?></span>
+							<input type="date" id="ocvc-join-anniv" max="<?php echo esc_attr( gmdate( 'Y-m-d' ) ); ?>" />
+						</label>
+						<label class="ocvc-join-field">
+							<span><?php esc_html_e( 'Gender', 'oc-valuecard' ); ?></span>
+							<select id="ocvc-join-gender">
+								<option value="">&mdash;</option>
+								<option value="male"><?php esc_html_e( 'Male', 'oc-valuecard' ); ?></option>
+								<option value="female"><?php esc_html_e( 'Female', 'oc-valuecard' ); ?></option>
+							</select>
+						</label>
+					</div>
+
+					<label class="ocvc-join-consent">
+						<input type="checkbox" id="ocvc-join-marketing" checked="checked" />
+						<span><?php esc_html_e( 'I agree to receive updates and offers by email and SMS', 'oc-valuecard' ); ?></span>
+					</label>
+
+					<div class="ocvc-msg" id="ocvc-join-msg" aria-live="polite"></div>
+
+					<div class="ocvc-join-actions">
+						<button type="button" class="ocvc-redeem-btn ocvc-join-accept" id="ocvc-join-accept"><?php esc_html_e( 'Join for free', 'oc-valuecard' ); ?></button>
+						<button type="button" class="ocvc-btn-muted" id="ocvc-join-decline"><?php esc_html_e( 'Maybe later', 'oc-valuecard' ); ?></button>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -917,6 +975,47 @@ class OCVC_Checkout {
 		// Remove only the points — keep the automatic club benefit applied.
 		OCVC_Member::set( 'points_to_consume', -1 );
 		self::ensure_benefit_query( true );
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * AJAX: store the "join the club" enrolment details in the session.
+	 * They are copied onto the order at checkout and sent to ValueCard when the
+	 * enrolment runs (on the reserve/settle status).
+	 *
+	 * @return void
+	 */
+	public static function ajax_join_save() {
+		check_ajax_referer( 'ocvc_nonce', 'nonce' );
+
+		$gender = isset( $_POST['gender'] ) ? sanitize_key( wp_unslash( $_POST['gender'] ) ) : '';
+		if ( ! in_array( $gender, array( 'male', 'female' ), true ) ) {
+			$gender = '';
+		}
+
+		$dates = array();
+		foreach ( array( 'birth_date', 'anniversary_date' ) as $key ) {
+			$raw           = isset( $_POST[ $key ] ) ? sanitize_text_field( wp_unslash( $_POST[ $key ] ) ) : '';
+			$dates[ $key ] = ( $raw && false !== strtotime( $raw ) ) ? gmdate( 'Y-m-d', strtotime( $raw ) ) : '';
+		}
+
+		$data = array(
+			'first_name'       => isset( $_POST['first_name'] ) ? sanitize_text_field( wp_unslash( $_POST['first_name'] ) ) : '',
+			'last_name'        => isset( $_POST['last_name'] ) ? sanitize_text_field( wp_unslash( $_POST['last_name'] ) ) : '',
+			'phone'            => isset( $_POST['phone'] ) ? OCVC_Member::normalise_phone( wp_unslash( $_POST['phone'] ) ) : '',
+			'email'            => isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '',
+			'birth_date'       => $dates['birth_date'],
+			'anniversary_date' => $dates['anniversary_date'],
+			'gender'           => $gender,
+			'marketing'        => empty( $_POST['marketing'] ) ? 0 : 1,
+		);
+
+		if ( '' === $data['first_name'] || strlen( $data['phone'] ) < 6 ) {
+			wp_send_json_error( array( 'message' => __( 'Please fill in a first name and a valid phone number.', 'oc-valuecard' ) ) );
+		}
+
+		OCVC_Member::set( 'join_data', $data );
 
 		wp_send_json_success();
 	}
