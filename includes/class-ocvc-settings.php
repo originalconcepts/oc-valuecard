@@ -102,6 +102,12 @@ class OCVC_Settings {
 				'default' => 0,
 				'desc'    => __( 'Requires the UpdateClubMember operation to be enabled for your POS account by ValueCard. Until then the club tab shows the details read-only.', 'oc-valuecard' ),
 			),
+			'account_tab_label' => array(
+				'section' => 'behaviour',
+				'label'   => __( 'Club tab title (My Account)', 'oc-valuecard' ),
+				'type'    => 'text',
+				'default' => __( 'Customers club', 'oc-valuecard' ),
+			),
 			'pull_on_login'     => array(
 				'section' => 'behaviour',
 				'label'   => __( 'Pull points when a member logs in', 'oc-valuecard' ),

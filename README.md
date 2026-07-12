@@ -171,6 +171,9 @@ Within a few hours (or after "Check again" on the Updates screen) every site see
 
 ## Changelog
 
+### 0.4.1
+Club tab title is admin-managed (new *"Club tab title (My Account)"* setting, default "Customers club"). Non-members visiting the club tab now get the club pitch + a pre-filled enrolment form and can join directly from My Account (registration fires immediately — no order needed); the membership is linked to the billing phone.
+
 ### 0.4.0
 My Account "Club" tab (`/my-account/valuecard-club/`): points balance, member-since date, profile details and a **History** tab of recent accruals/redemptions (RecentCardActivity). Profile editing (UpdateClubMember, full form incl. birthday/anniversary/gender + marketing consent) is built in but ships behind the *"Let members edit their club details"* setting — the operation currently returns a server error for web-POS credentials and must first be enabled by ValueCard; until then the details show read-only. New API methods: `club_member_details()` (dormant — empty response for web-POS), `update_club_member()`, `recent_card_activity()`.
 

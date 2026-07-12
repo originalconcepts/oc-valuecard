@@ -39,6 +39,7 @@ class OCVC_Account {
 		add_action( 'woocommerce_account_' . self::ENDPOINT . '_endpoint', array( __CLASS__, 'render' ) );
 		add_filter( 'woocommerce_endpoint_' . self::ENDPOINT . '_title', array( __CLASS__, 'endpoint_title' ) );
 		add_action( 'template_redirect', array( __CLASS__, 'handle_save' ) );
+		add_action( 'template_redirect', array( __CLASS__, 'handle_join' ) );
 	}
 
 	/**
@@ -71,9 +72,19 @@ class OCVC_Account {
 			$logout['customer-logout'] = $items['customer-logout'];
 			unset( $items['customer-logout'] );
 		}
-		$items[ self::ENDPOINT ] = __( 'Club', 'oc-valuecard' );
+		$items[ self::ENDPOINT ] = self::tab_label();
 
 		return $items + $logout;
+	}
+
+	/**
+	 * The tab title (admin-managed, with a sane default).
+	 *
+	 * @return string
+	 */
+	public static function tab_label() {
+		$label = trim( (string) OCVC_Settings::get( 'account_tab_label' ) );
+		return '' !== $label ? $label : __( 'Customers club', 'oc-valuecard' );
 	}
 
 	/**
@@ -82,7 +93,7 @@ class OCVC_Account {
 	 * @return string
 	 */
 	public static function endpoint_title() {
-		return __( 'Club', 'oc-valuecard' );
+		return self::tab_label();
 	}
 
 	/**
@@ -189,6 +200,159 @@ class OCVC_Account {
 	}
 
 	/**
+	 * Handle the join-the-club POST from the account page (registers with
+	 * ValueCard immediately — unlike the checkout flow, there is no order to
+	 * wait for).
+	 *
+	 * @return void
+	 */
+	public static function handle_join() {
+		if ( empty( $_POST['ocvc_account_join'] ) || ! is_user_logged_in() ) {
+			return;
+		}
+		if ( empty( $_POST['ocvc_account_join_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['ocvc_account_join_nonce'] ) ), 'ocvc_account_join' ) ) {
+			return;
+		}
+
+		$api = new OCVC_API();
+		if ( ! $api->is_configured() ) {
+			return;
+		}
+		$card = OCVC_Member::account_phone();
+		if ( ! $card ) {
+			return;
+		}
+
+		$gender = isset( $_POST['ocvc_gender'] ) ? sanitize_key( wp_unslash( $_POST['ocvc_gender'] ) ) : '';
+		if ( ! in_array( $gender, array( 'male', 'female' ), true ) ) {
+			$gender = '';
+		}
+
+		$dates = array(
+			'ocvc_birth' => '',
+			'ocvc_anniv' => '',
+		);
+		foreach ( $dates as $field => $unused ) {
+			$raw = isset( $_POST[ $field ] ) ? sanitize_text_field( wp_unslash( $_POST[ $field ] ) ) : '';
+			if ( $raw && false !== strtotime( $raw ) ) {
+				$dates[ $field ] = gmdate( 'Y-m-d', strtotime( $raw ) );
+			}
+		}
+
+		$billing = self::billing_address();
+
+		$result = $api->register_member(
+			array(
+				'first_name'       => isset( $_POST['ocvc_first_name'] ) ? sanitize_text_field( wp_unslash( $_POST['ocvc_first_name'] ) ) : '',
+				'last_name'        => isset( $_POST['ocvc_last_name'] ) ? sanitize_text_field( wp_unslash( $_POST['ocvc_last_name'] ) ) : '',
+				'phone'            => $card,
+				'email'            => isset( $_POST['ocvc_email'] ) ? sanitize_email( wp_unslash( $_POST['ocvc_email'] ) ) : '',
+				'address'          => $billing['address'],
+				'zip'              => $billing['zipcode'],
+				'marketing'        => empty( $_POST['ocvc_marketing'] ) ? 0 : 1,
+				'terms'            => 1,
+				'birth_date'       => $dates['ocvc_birth'],
+				'anniversary_date' => $dates['ocvc_anniv'],
+				'gender'           => $gender,
+			)
+		);
+
+		if ( $result->is_error ) {
+			wc_add_notice( __( 'Could not complete the registration: ', 'oc-valuecard' ) . $result->message, 'error' );
+		} else {
+			wc_add_notice( __( 'Welcome to the club! Your membership is now active.', 'oc-valuecard' ) );
+			OCVC_Member::set( 'member_info', null );
+			OCVC_Member::set( 'member_info_ts', null );
+		}
+
+		wp_safe_redirect( wc_get_account_endpoint_url( self::ENDPOINT ) );
+		exit;
+	}
+
+	/**
+	 * Non-member view: the club pitch (same content as the checkout popup) plus
+	 * a pre-filled enrolment form.
+	 *
+	 * @param string $card The account phone (becomes the card number).
+	 * @return void
+	 */
+	private static function render_join( $card ) {
+		$content = trim( (string) OCVC_Settings::get( 'join_popup_content' ) );
+
+		$first = '';
+		$last  = '';
+		$email = '';
+		if ( function_exists( 'WC' ) && WC()->customer ) {
+			$first = (string) WC()->customer->get_billing_first_name();
+			$last  = (string) WC()->customer->get_billing_last_name();
+			$email = (string) WC()->customer->get_billing_email();
+		}
+		if ( '' === $email ) {
+			$user  = wp_get_current_user();
+			$email = (string) $user->user_email;
+		}
+		?>
+		<div class="ocvc-account">
+			<?php if ( '' !== $content ) : ?>
+				<div class="ocvc-box">
+					<div class="ocvc-join-content"><?php echo wp_kses_post( wpautop( $content ) ); ?></div>
+				</div>
+			<?php endif; ?>
+
+			<div class="ocvc-box">
+				<form method="post" class="ocvc-acc-form">
+					<div class="ocvc-join-grid">
+						<label class="ocvc-join-field">
+							<span><?php esc_html_e( 'First name', 'oc-valuecard' ); ?> *</span>
+							<input type="text" name="ocvc_first_name" value="<?php echo esc_attr( $first ); ?>" autocomplete="given-name" />
+						</label>
+						<label class="ocvc-join-field">
+							<span><?php esc_html_e( 'Last name', 'oc-valuecard' ); ?></span>
+							<input type="text" name="ocvc_last_name" value="<?php echo esc_attr( $last ); ?>" autocomplete="family-name" />
+						</label>
+						<label class="ocvc-join-field">
+							<span><?php esc_html_e( 'Phone', 'oc-valuecard' ); ?></span>
+							<input type="tel" value="<?php echo esc_attr( $card ); ?>" dir="ltr" disabled />
+						</label>
+						<label class="ocvc-join-field">
+							<span><?php esc_html_e( 'Email', 'oc-valuecard' ); ?></span>
+							<input type="email" name="ocvc_email" value="<?php echo esc_attr( $email ); ?>" dir="ltr" autocomplete="email" />
+						</label>
+						<label class="ocvc-join-field">
+							<span><?php esc_html_e( 'Birthday', 'oc-valuecard' ); ?></span>
+							<input type="date" name="ocvc_birth" lang="en" dir="ltr" max="<?php echo esc_attr( gmdate( 'Y-m-d' ) ); ?>" />
+						</label>
+						<label class="ocvc-join-field">
+							<span><?php esc_html_e( 'Anniversary', 'oc-valuecard' ); ?></span>
+							<input type="date" name="ocvc_anniv" lang="en" dir="ltr" max="<?php echo esc_attr( gmdate( 'Y-m-d' ) ); ?>" />
+						</label>
+						<label class="ocvc-join-field">
+							<span><?php esc_html_e( 'Gender', 'oc-valuecard' ); ?></span>
+							<select name="ocvc_gender">
+								<option value="">&mdash;</option>
+								<option value="male"><?php esc_html_e( 'Male', 'oc-valuecard' ); ?></option>
+								<option value="female"><?php esc_html_e( 'Female', 'oc-valuecard' ); ?></option>
+							</select>
+						</label>
+					</div>
+
+					<p class="ocvc-acc-note"><?php esc_html_e( 'Your membership will be linked to this phone number (from your billing details).', 'oc-valuecard' ); ?></p>
+
+					<label class="ocvc-join-consent">
+						<input type="checkbox" name="ocvc_marketing" checked="checked" />
+						<span><?php esc_html_e( 'I agree to receive updates and offers by email and SMS', 'oc-valuecard' ); ?></span>
+					</label>
+
+					<?php wp_nonce_field( 'ocvc_account_join', 'ocvc_account_join_nonce' ); ?>
+					<input type="hidden" name="ocvc_account_join" value="1" />
+					<button type="submit" class="ocvc-redeem-btn ocvc-acc-save"><?php esc_html_e( 'Join for free', 'oc-valuecard' ); ?></button>
+				</form>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Render the endpoint content.
 	 *
 	 * @return void
@@ -212,7 +376,7 @@ class OCVC_Account {
 
 		$info = $api->card_information( $card );
 		if ( $info->is_error ) {
-			echo '<p>' . esc_html__( 'You are not a club member yet. You can join the club at checkout on your next order.', 'oc-valuecard' ) . '</p>';
+			self::render_join( $card );
 			return;
 		}
 
