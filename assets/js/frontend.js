@@ -25,6 +25,25 @@
 		$( document.body ).trigger( 'update_checkout' );
 	}
 
+	/* ----- Placement (deliz-short) ---------------------------------------- */
+
+	// On the deliz checkout the only hook available renders the box INSIDE the
+	// payment card (.checkout-order-payment-wrap). Relocate it to be its own
+	// section right above the payment card. Editing the theme template is not
+	// durable (theme deploys overwrite it), so the plugin self-heals instead.
+	// No-op on themes without that wrapper. Fragment updates replace the node
+	// in place, so the relocated position survives every update_checkout.
+	function relocateBox() {
+		var $box  = $( '#ocvc-box-wrap' );
+		var $wrap = $( '.checkout-order-payment-wrap' ).first();
+		if ( $box.length && $wrap.length && $.contains( $wrap[ 0 ], $box[ 0 ] ) ) {
+			$box.insertBefore( $wrap );
+		}
+	}
+
+	$( relocateBox );
+	$( document.body ).on( 'updated_checkout', relocateBox );
+
 	function setMsg( el, text, isError ) {
 		$( el ).text( text || '' ).toggleClass( 'ocvc-error', !! isError );
 	}
