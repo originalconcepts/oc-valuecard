@@ -83,7 +83,7 @@ Key behaviours learned from production:
 
 ## Checkout flow
 
-1. **Identify** — logged-in members use the account phone; guests tap **"I have a membership"** → phone + OTP.
+1. **Identify** — logged-in members use the account phone; guests tap **"I have a membership"** → phone + OTP. A phone the shopper already verified with a code at sign-in (OC SMS Login, via the `ocvc_verified_phone` filter) is used as is: no second code, and it wins over the editable billing phone.
 2. **Auto benefit** — once identified, `ensure_benefit_query()` runs on `woocommerce_cart_calculate_fees` (checkout context) with `points_to_consume = -1`, applying the club benefit as a **"Club benefit"** cart fee.
 3. **Redeem points** — the member opens the redeem field (defaults to their full balance), confirms, and the quote re-runs with that amount; the points portion appears as a **"Points redemption"** cart fee. The `TransactionId` is stored in the session.
 4. **Order** — on `woocommerce_checkout_create_order` the card, `TransactionId`, points and join flag are copied to order meta (HPOS-safe).
@@ -131,6 +131,14 @@ if ( class_exists( 'OCVC_Checkout' ) ) {
 }
 ```
 
+Sign-in plugins that verify the shopper's phone with their own one-time code can vouch for it, so the club never asks for a second code (OC SMS Login does this out of the box):
+
+```php
+add_filter( 'ocvc_verified_phone', function ( $phone, $user_id ) {
+    return get_user_meta( $user_id, 'my_verified_phone', true ) ?: $phone;
+}, 10, 2 );
+```
+
 Custom themes that render the order **total** outside the standard review fragment can register their element via the `ocvc_order_total_mirror_selectors` filter so the discount reflects live:
 
 ```php
@@ -170,6 +178,9 @@ Within a few hours (or after "Check again" on the Updates screen) every site see
 - Debug logging writes to `wp-content/uploads/oc-valuecard/` (protected, credentials redacted). Turn it off in production.
 
 ## Changelog
+
+### 0.4.2
+One code is enough: a phone the shopper verified at sign-in (OC SMS Login, or any plugin answering the new `ocvc_verified_phone` filter) identifies them in the club with no ValueCard OTP, also in the My Account club tab, and is trusted over the editable billing phone. Typing that same number in "I have a membership" connects at once instead of sending another code.
 
 ### 0.4.1
 Club tab title is admin-managed (new *"Club tab title (My Account)"* setting, default "Customers club"). Non-members visiting the club tab now get the club pitch + a pre-filled enrolment form and can join directly from My Account (registration fires immediately — no order needed); the membership is linked to the billing phone.
