@@ -164,6 +164,9 @@ msgstr "אנא הזן מספר טלפון תקין."
 msgid "Please wait a few seconds before requesting another code."
 msgstr "אנא המתן כמה שניות לפני בקשת קוד נוסף."
 
+msgid "This number is already verified, but it is not registered in the club."
+msgstr "המספר הזה כבר אומת, אבל הוא לא רשום במועדון."
+
 msgid "Points redemption"
 msgstr "מימוש נקודות"
 

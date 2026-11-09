@@ -164,6 +164,9 @@ msgstr ""
 msgid "Please wait a few seconds before requesting another code."
 msgstr ""
 
+msgid "This number is already verified, but it is not registered in the club."
+msgstr ""
+
 msgid "Points redemption"
 msgstr ""
 

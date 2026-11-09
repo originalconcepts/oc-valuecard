@@ -152,7 +152,11 @@
 		post( 'ocvc_send_otp', { phone: phone } )
 			.done( function ( res ) {
 				$btn.prop( 'disabled', false );
-				if ( res && res.success ) {
+				if ( res && res.success && res.data && res.data.verified ) {
+					// Already verified at sign-in: connected with no code.
+					closeModal();
+					refreshCheckout();
+				} else if ( res && res.success ) {
 					currentPhone = phone;
 					showCodeStep( phone );
 				} else {

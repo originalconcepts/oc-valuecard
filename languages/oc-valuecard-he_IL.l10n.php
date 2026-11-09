@@ -102,6 +102,7 @@ return array(
 		'Phone number' => 'מספר טלפון',
 		'Please enter a valid phone number.' => 'אנא הזן מספר טלפון תקין.',
 		'Please wait a few seconds before requesting another code.' => 'אנא המתן כמה שניות לפני בקשת קוד נוסף.',
+		'This number is already verified, but it is not registered in the club.' => 'המספר הזה כבר אומת, אבל הוא לא רשום במועדון.',
 		'Points redemption' => 'מימוש נקודות',
 		'Primary color' => 'צבע ראשי',
 		'Pull points on the checkout page' => 'משיכת נקודות בעמוד הקופה',

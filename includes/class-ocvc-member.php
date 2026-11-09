@@ -97,6 +97,12 @@ class OCVC_Member {
 			return self::normalise_phone( self::get( 'phone' ) );
 		}
 
+		// A phone the shopper already proved with a code at sign-in (OC SMS Login): no second code.
+		$verified = self::verified_phone();
+		if ( $verified ) {
+			return $verified;
+		}
+
 		// Logged-in shopper — trust the account phone.
 		if ( is_user_logged_in() && OCVC_Settings::get_bool( 'pull_on_login' ) ) {
 			$phone = self::account_phone();
@@ -114,6 +120,10 @@ class OCVC_Member {
 	 * @return string
 	 */
 	public static function account_phone() {
+		$verified = self::verified_phone();
+		if ( $verified ) {
+			return $verified; // Proven with a code, unlike the billing phone the customer can edit.
+		}
 		$phone = '';
 		if ( WC()->customer ) {
 			$phone = WC()->customer->get_billing_phone();
@@ -122,6 +132,22 @@ class OCVC_Member {
 			$phone = get_user_meta( get_current_user_id(), 'billing_phone', true );
 		}
 		return self::normalise_phone( $phone );
+	}
+
+	/**
+	 * The signed-in shopper's phone as verified by a sign-in plugin with its own one-time code
+	 * (OC SMS Login answers this filter). Trusted like our own OTP, so the club does not ask
+	 * for a second code. '' when no plugin vouches for one.
+	 *
+	 * Filter: ocvc_verified_phone( string $phone, int $user_id ).
+	 *
+	 * @return string Digits only.
+	 */
+	public static function verified_phone() {
+		if ( ! is_user_logged_in() ) {
+			return '';
+		}
+		return self::normalise_phone( (string) apply_filters( 'ocvc_verified_phone', '', get_current_user_id() ) );
 	}
 
 	/**
@@ -282,6 +308,17 @@ class OCVC_Member {
 		$phone = isset( $_POST['phone'] ) ? self::normalise_phone( wp_unslash( $_POST['phone'] ) ) : '';
 		if ( strlen( $phone ) < 6 ) {
 			wp_send_json_error( array( 'message' => __( 'Please enter a valid phone number.', 'oc-valuecard' ) ) );
+		}
+
+		// The number the shopper already verified at sign-in: no second code.
+		if ( '' !== self::verified_phone() && self::verified_phone() === $phone ) {
+			self::set( 'phone', $phone );
+			self::set( 'verified', 1 );
+			$balance = self::ensure_balance( true );
+			if ( $balance && $balance->is_member ) {
+				wp_send_json_success( array( 'verified' => true ) );
+			}
+			wp_send_json_error( array( 'message' => __( 'This number is already verified, but it is not registered in the club.', 'oc-valuecard' ) ) );
 		}
 
 		// Basic abuse guard: a short cooldown between sends per client.
