@@ -179,6 +179,9 @@ Within a few hours (or after "Check again" on the Updates screen) every site see
 
 ## Changelog
 
+### 0.4.3
+Text-style buttons stay text. The member name, "Disconnect", "Remove", "I have a membership", "Change number" and the popup × are `<button>`s, and themes that style every button (OC Theme: an orange `::before` layer, a sliding orange and white background, border, padding and white text) turned them into orange blocks. Their resets now carry id weight and `!important`, so no theme rule outranks them.
+
 ### 0.4.2
 One code is enough: a phone the shopper verified at sign-in (OC SMS Login, or any plugin answering the new `ocvc_verified_phone` filter) identifies them in the club with no ValueCard OTP, also in the My Account club tab, and is trusted over the editable billing phone. Typing that same number in "I have a membership" connects at once instead of sending another code.
 

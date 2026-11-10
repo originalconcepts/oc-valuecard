@@ -166,6 +166,45 @@
 	opacity: 0.75;
 }
 
+/* ---------------- Text-style buttons stay text ----------------
+   Themes style every <button>. OC Theme adds an orange ::before layer, a sliding orange and white background
+   with a border, padding and white text, through :not() chains (and !important on hover) that outrank a
+   plain class. It turned the member name and "Disconnect" into orange blocks. The unused id inside :is()
+   gives these resets id weight, so they win whatever the theme does. */
+:is(.ocvc-member-name, .ocvc-link, .ocvc-modal-close, #ocvc-x-weight) {
+	background: none !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	border-radius: 0 !important;
+	padding: 0 !important;
+	min-width: 0 !important;
+	min-height: 0 !important;
+	height: auto !important;
+	text-transform: none !important;
+	letter-spacing: normal !important;
+	transform: none !important;
+	transition: opacity 0.15s ease !important;
+}
+
+:is(.ocvc-member-name, .ocvc-link, .ocvc-modal-close, #ocvc-x-weight)::before,
+:is(.ocvc-member-name, .ocvc-link, .ocvc-modal-close, #ocvc-x-weight)::after {
+	content: none !important;
+	display: none !important;
+}
+
+:is(.ocvc-member-name, .ocvc-link, #ocvc-x-weight),
+:is(.ocvc-member-name, .ocvc-link, #ocvc-x-weight):hover {
+	color: inherit !important;
+	line-height: inherit !important;
+}
+
+:is(.ocvc-member-name, #ocvc-x-weight) { font-weight: 700 !important; }
+:is(.ocvc-have-club, #ocvc-x-weight) { font-weight: 600 !important; }
+:is(.ocvc-link, #ocvc-x-weight):not(.ocvc-have-club):not(.ocvc-member-name) { font-weight: inherit !important; }
+
+:is(.ocvc-modal-close, #ocvc-x-weight) { position: absolute !important; color: #999 !important; }
+:is(.ocvc-modal-close, #ocvc-x-weight):hover { color: #333 !important; }
+
 .ocvc-msg {
 	margin-top: 0.5em;
 	font-size: 0.9em;
