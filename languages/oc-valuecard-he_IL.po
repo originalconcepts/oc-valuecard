@@ -272,3 +272,27 @@ msgstr "נקודה"
 msgid "points"
 msgstr "נקודות"
 
+msgid "Minimum points to redeem in one order"
+msgstr "מינימום נקודות למימוש בהזמנה אחת"
+
+msgid "Maximum points to redeem in one order"
+msgstr "מקסימום נקודות למימוש בהזמנה אחת"
+
+msgid "A member cannot redeem fewer points than this in one order. 0 = no minimum."
+msgstr "חבר מועדון לא יכול לממש פחות מזה בהזמנה אחת. 0 = בלי מינימום."
+
+msgid "A member cannot redeem more points than this in one order. 0 = no maximum."
+msgstr "חבר מועדון לא יכול לממש יותר מזה בהזמנה אחת. 0 = בלי מקסימום."
+
+msgid "Redeeming in one order: minimum %1$s, maximum %2$s points"
+msgstr "מימוש בקנייה: מינימום %1$s ומקסימום %2$s נקודות"
+
+msgid "Redeeming in one order: minimum %s points"
+msgstr "מימוש בקנייה: מינימום %s נקודות"
+
+msgid "Redeeming in one order: maximum %s points"
+msgstr "מימוש בקנייה: מקסימום %s נקודות"
+
+msgid "At least %s points can be redeemed in one order."
+msgstr "אפשר לממש %s נקודות לפחות בקנייה אחת."
+

@@ -257,6 +257,14 @@ class OCVC_Checkout {
 		$balance_html = self::format_balance( $avail, $units );
 		$benefits     = isset( $m->benefits ) && is_array( $m->benefits ) ? $m->benefits : array();
 		$show_points  = ( $redeemed > 0 ) ? max( 0, $avail - $redeemed ) : $avail;
+		// The shop's limits on one order's redemption: the most this member can redeem now,
+		// and whether that reaches the minimum at all.
+		list( $limit_min, $limit_max ) = self::redeem_limits();
+		$can_redeem = (int) floor( $avail );
+		if ( $limit_max > 0 ) {
+			$can_redeem = min( $can_redeem, $limit_max );
+		}
+		$limit_note = self::redeem_limits_text();
 		?>
 		<div class="ocvc-member">
 			<div class="ocvc-member-head">
@@ -285,11 +293,11 @@ class OCVC_Checkout {
 							</span>
 							<button type="button" class="ocvc-link" id="ocvc-clear"><?php esc_html_e( 'Remove', 'oc-valuecard' ); ?></button>
 						</div>
-					<?php elseif ( $avail > 0 ) : ?>
+					<?php elseif ( $can_redeem >= max( 1, $limit_min ) ) : ?>
 						<div class="ocvc-points-action">
 							<button type="button" class="ocvc-redeem-btn ocvc-redeem-open" id="ocvc-redeem-open"><?php echo esc_html( OCVC_Settings::get( 'redeem_button_label' ) ); ?></button>
 							<div class="ocvc-redeem-field" id="ocvc-redeem-field" hidden>
-								<input type="number" min="0" step="1" max="<?php echo esc_attr( (int) floor( $avail ) ); ?>" value="<?php echo esc_attr( (int) floor( $avail ) ); ?>" id="ocvc-amount" class="ocvc-amount" />
+								<input type="number" min="<?php echo esc_attr( (string) $limit_min ); ?>" step="1" max="<?php echo esc_attr( (string) $can_redeem ); ?>" value="<?php echo esc_attr( (string) $can_redeem ); ?>" id="ocvc-amount" class="ocvc-amount" />
 								<button type="button" class="ocvc-redeem-btn ocvc-redeem-confirm" id="ocvc-apply-amount">&#10003; <?php esc_html_e( 'Redeem now', 'oc-valuecard' ); ?></button>
 							</div>
 						</div>
@@ -304,6 +312,9 @@ class OCVC_Checkout {
 				/* translators: %s currency/unit symbol. */
 				printf( esc_html__( '1 point = 1 %s', 'oc-valuecard' ), esc_html( $units ) );
 				?>
+				<?php if ( '' !== $limit_note ) : ?>
+					<span class="ocvc-limit-note">&middot; <?php echo esc_html( $limit_note ); ?></span>
+				<?php endif; ?>
 			</p>
 
 			<?php if ( $earn > 0 ) : ?>
@@ -318,6 +329,42 @@ class OCVC_Checkout {
 			<?php self::render_details_modal( $m, $balance_html ); ?>
 		</div>
 		<?php
+	}
+
+	/**
+	 * The shop's limits on how many points one order may redeem (0 = no limit).
+	 *
+	 * @return int[] array( minimum, maximum )
+	 */
+	private static function redeem_limits() {
+		$min = absint( OCVC_Settings::get( 'redeem_min' ) );
+		$max = absint( OCVC_Settings::get( 'redeem_max' ) );
+		if ( $max > 0 && $max < $min ) {
+			$max = $min; // A maximum below the minimum would close redemption altogether.
+		}
+		return array( $min, $max );
+	}
+
+	/**
+	 * The limits in words, for the member ('' when there are none).
+	 *
+	 * @return string
+	 */
+	private static function redeem_limits_text() {
+		list( $min, $max ) = self::redeem_limits();
+		if ( $min > 0 && $max > 0 ) {
+			/* translators: 1: minimum points, 2: maximum points. */
+			return sprintf( __( 'Redeeming in one order: minimum %1$s, maximum %2$s points', 'oc-valuecard' ), self::num( $min ), self::num( $max ) );
+		}
+		if ( $min > 0 ) {
+			/* translators: %s minimum points. */
+			return sprintf( __( 'Redeeming in one order: minimum %s points', 'oc-valuecard' ), self::num( $min ) );
+		}
+		if ( $max > 0 ) {
+			/* translators: %s maximum points. */
+			return sprintf( __( 'Redeeming in one order: maximum %s points', 'oc-valuecard' ), self::num( $max ) );
+		}
+		return '';
 	}
 
 	/**
@@ -950,9 +997,23 @@ class OCVC_Checkout {
 		if ( $payable > 0 && $amount > $payable ) {
 			$amount = $payable;
 		}
+		// The shop's limits on one order: more than the maximum is brought down to it;
+		// less than the minimum is refused (asked for, or all the order leaves room for).
+		list( $limit_min, $limit_max ) = self::redeem_limits();
+		if ( $limit_max > 0 && $amount > $limit_max ) {
+			$amount = $limit_max;
+		}
 		// ValueCard only accepts whole-number point redemptions — a fractional
 		// CouponNum (e.g. a 12.12 balance) is rejected. Floor to whole points.
 		$amount = floor( $amount );
+		if ( $limit_min > 0 && $amount < $limit_min ) {
+			wp_send_json_error(
+				array(
+					/* translators: %s minimum points. */
+					'message' => sprintf( __( 'At least %s points can be redeemed in one order.', 'oc-valuecard' ), self::num( $limit_min ) ),
+				)
+			);
+		}
 		$points = ( $amount >= 1 ) ? $amount : -1;
 
 		OCVC_Member::set( 'points_to_consume', $points );

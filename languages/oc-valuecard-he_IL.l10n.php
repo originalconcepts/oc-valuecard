@@ -138,5 +138,13 @@ return array(
 		'for use' => 'לשימוש',
 		'point' => 'נקודה',
 		'points' => 'נקודות',
+		'Minimum points to redeem in one order' => 'מינימום נקודות למימוש בהזמנה אחת',
+		'Maximum points to redeem in one order' => 'מקסימום נקודות למימוש בהזמנה אחת',
+		'A member cannot redeem fewer points than this in one order. 0 = no minimum.' => 'חבר מועדון לא יכול לממש פחות מזה בהזמנה אחת. 0 = בלי מינימום.',
+		'A member cannot redeem more points than this in one order. 0 = no maximum.' => 'חבר מועדון לא יכול לממש יותר מזה בהזמנה אחת. 0 = בלי מקסימום.',
+		'Redeeming in one order: minimum %1$s, maximum %2$s points' => 'מימוש בקנייה: מינימום %1$s ומקסימום %2$s נקודות',
+		'Redeeming in one order: minimum %s points' => 'מימוש בקנייה: מינימום %s נקודות',
+		'Redeeming in one order: maximum %s points' => 'מימוש בקנייה: מקסימום %s נקודות',
+		'At least %s points can be redeemed in one order.' => 'אפשר לממש %s נקודות לפחות בקנייה אחת.',
 	),
 );
