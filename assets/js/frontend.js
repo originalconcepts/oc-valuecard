@@ -325,6 +325,12 @@
 	}
 
 	function closeModal() {
+		// The join form closed without joining (×, Escape, a click beside it): the toggle that
+		// opened it goes back off. A toggle left on would show a membership nobody asked for, and
+		// the order would still carry the request to join.
+		if ( ! joinSaved && ! $( '#ocvc-join-modal' ).prop( 'hidden' ) ) {
+			$( '#ocvc-join-club' ).prop( 'checked', false );
+		}
 		$( '.ocvc-modal' ).prop( 'hidden', true ).removeClass( 'ocvc-open' );
 	}
 
