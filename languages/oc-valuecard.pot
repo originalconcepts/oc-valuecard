@@ -272,3 +272,27 @@ msgstr ""
 msgid "points"
 msgstr ""
 
+msgid "Minimum points to redeem in one order"
+msgstr ""
+
+msgid "Maximum points to redeem in one order"
+msgstr ""
+
+msgid "A member cannot redeem fewer points than this in one order. 0 = no minimum."
+msgstr ""
+
+msgid "A member cannot redeem more points than this in one order. 0 = no maximum."
+msgstr ""
+
+msgid "Redeeming in one order: minimum %1$s, maximum %2$s points"
+msgstr ""
+
+msgid "Redeeming in one order: minimum %s points"
+msgstr ""
+
+msgid "Redeeming in one order: maximum %s points"
+msgstr ""
+
+msgid "At least %s points can be redeemed in one order."
+msgstr ""
+

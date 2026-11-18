@@ -179,6 +179,12 @@ Within a few hours (or after "Check again" on the Updates screen) every site see
 
 ## Changelog
 
+### 0.4.5
+"Join the club" toggle: closing the join form without joining (×, Escape, a click beside it) turns the toggle back off. Before, it stayed on, showed a membership nobody asked for, and the order still carried the request to join.
+
+### 0.4.4
+Limits on redeeming points in one order: two new settings, *"Minimum points to redeem in one order"* and *"Maximum points to redeem in one order"* (0 = no limit, the default). More than the maximum is brought down to it; less than the minimum is refused with a message, also when the order itself leaves room for less. The redeem field opens at the most the member can redeem now, the limits are written under the balance, and a member whose balance is below the minimum gets no redeem button. Enforced on the server (`ocvc_apply_points`), not only in the field.
+
 ### 0.4.3
 Text-style buttons stay text. The member name, "Disconnect", "Remove", "I have a membership", "Change number" and the popup × are `<button>`s, and themes that style every button (OC Theme: an orange `::before` layer, a sliding orange and white background, border, padding and white text) turned them into orange blocks. Their resets now carry id weight and `!important`, so no theme rule outranks them.
 

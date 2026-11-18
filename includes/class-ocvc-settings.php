@@ -149,6 +149,20 @@ class OCVC_Settings {
 				'type'    => 'text',
 				'default' => __( 'Redeem points', 'oc-valuecard' ),
 			),
+			'redeem_min'        => array(
+				'section' => 'redeem',
+				'label'   => __( 'Minimum points to redeem in one order', 'oc-valuecard' ),
+				'type'    => 'number',
+				'default' => 0,
+				'desc'    => __( 'A member cannot redeem fewer points than this in one order. 0 = no minimum.', 'oc-valuecard' ),
+			),
+			'redeem_max'        => array(
+				'section' => 'redeem',
+				'label'   => __( 'Maximum points to redeem in one order', 'oc-valuecard' ),
+				'type'    => 'number',
+				'default' => 0,
+				'desc'    => __( 'A member cannot redeem more points than this in one order. 0 = no maximum.', 'oc-valuecard' ),
+			),
 			'member_login_label' => array(
 				'section' => 'redeem',
 				'label'   => __( '"I have a membership" link text', 'oc-valuecard' ),
@@ -341,6 +355,9 @@ class OCVC_Settings {
 				case 'color':
 					$clean[ $key ] = sanitize_hex_color( $value ) ? sanitize_hex_color( $value ) : '#1aa251';
 					break;
+				case 'number':
+					$clean[ $key ] = absint( $value );
+					break;
 				default:
 					$clean[ $key ] = sanitize_text_field( $value );
 			}
@@ -461,6 +478,10 @@ class OCVC_Settings {
 				$color = $value ? $value : '#1aa251';
 				echo '<input type="color" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $color ) . '" style="width:60px;height:34px;vertical-align:middle;" />';
 				echo ' <code style="vertical-align:middle;">' . esc_html( $color ) . '</code>';
+				break;
+
+			case 'number':
+				echo '<input type="number" min="0" step="1" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( (string) absint( $value ) ) . '" class="small-text" />';
 				break;
 
 			default:
